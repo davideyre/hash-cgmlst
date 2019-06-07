@@ -82,7 +82,7 @@ process kraken2 {
     publishDir "${outputPath}/${firstThree(file_name)}", mode: 'copy', pattern: "${file_name}*"
 
 	"""
-	/users/bag/deyre/bin/kraken/kraken2 --report ${file_name}_kraken.txt --db ${krakendb} --paired in.1.fq in.2.fq > /dev/null
+	kraken2 --report ${file_name}_kraken.txt --db ${krakendb} --paired in.1.fq in.2.fq > /dev/null
 	"""
 
 }
@@ -194,14 +194,14 @@ process cgmlst {
 	
 	"""
 	#get stats
-	/apps/htseq/bbmap_38.32/stats.sh in=${file_name}_spades_contigs.fa > ${file_name}_cgmlst.stats
-	/apps/htseq/bbmap_38.32/statswrapper.sh in=${file_name}_spades_contigs.fa > ${file_name}_cgmlst.statlog
+	/opt/conda/opt/bbmap-38.22-1/stats.sh in=${file_name}_spades_contigs.fa > ${file_name}_cgmlst.stats
+	/opt/conda/opt/bbmap-38.22-1/statswrapper.sh in=${file_name}_spades_contigs.fa > ${file_name}_cgmlst.statlog
 	#run hash cgmlst
-	/users/bag/deyre/analysis/spades-flow/cgmlst/getCoreGenomeMLST.py -f ${file_name}_spades_contigs.fa \
+	bin/getCoreGenomeMLST.py -f ${file_name}_spades_contigs.fa \
 		-n ${file_name} \
-		-s /users/bag/deyre/analysis/spades-flow/cgmlst/ridom_scheme/files \
-		-d /users/bag/deyre/analysis/spades-flow/cgmlst/ridom_scheme/ridom_scheme.fasta \
+		-s ridom_scheme/files \
+		-d ridom_scheme/ridom_scheme.fasta \
 		-o ${file_name} \
-		-b /apps/htseq/ncbi-blast/bin/blastn
+		-b blastn
 	"""	
 }
