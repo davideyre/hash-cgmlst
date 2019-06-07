@@ -46,5 +46,5 @@ At present the scripts are designed to be run on a specific server set-up. More 
 
 To run the cgMLST analysis
 ```
-nextflow hash-cgMLST.nf --seqlist comparison_study_data/replicates_input.csv --outputPath comparison_study_data/replicates_output -resume -profilie ophelia
+nextflow hash-cgMLST.nf --seqlist comparison_study_data/example_input.csv --outputPath comparison_study_data/replicates_output -resume -profile ophelia
 ```
