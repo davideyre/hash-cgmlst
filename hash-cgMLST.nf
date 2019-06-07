@@ -1,16 +1,9 @@
 #!/usr/bin/env nextflow
 
-/* 
-pipeline for calling spades
-E.g.
-nextflow runSpadesLocal.nf --seqlist replicates_input.csv --outputPath replicates_output -resume
-
-*/
-
 // parameters 
 params.seqlist = "example_input.csv"
 params.outputPath = "example_output"
-
+parms.krakendb = "minikraken2" //location of minikrakenDB
 
 def firstThree( str ) {
     return str.substring(0,3)
@@ -28,12 +21,10 @@ log.info "\n"
 
 // rename input parameters
 outputPath = file(params.outputPath)
+krakendb = file(parms.krakendb)
 
 //location for bbduk adapter sequences
 bbduk_adapaters = "/opt/conda/opt/bbmap-38.22-1/resources/adapters.fa" //path within docker/singularity image
-
-//location of minikrakenDB
-krakendb = "/users/bag/deyre/bin/kraken/minikraken2_v1_8GB"
 
 
 // set up initial channel based on CSV file
@@ -52,8 +43,6 @@ process fetchBam {
 		set file_name, file("in.bam") into bam_ch
 	tag "$file_name"
 	
-	errorStrategy { task.attempt<3 ? 'retry' : 'ignore'}
-	
 	"""
 	scp -P 8081 ana:/mnt/microbio/ndm-hicf/ogre/pipeline_output/${file_name}/MAPPING/103e39d6-096c-46da-994d-91c5acbda565_R00000003/STD/${file_name}_v3.bam in.bam || scp -P 8081 ana:/mnt/microbio/ndm-hicf/ogre/pipeline_output/${file_name}/MAPPING/103e39d6-096c-46da-994d-91c5acbda565_R00000003/STD/${file_name}_v2.bam in.bam
 	"""
@@ -67,12 +56,6 @@ process makeFastQ {
 	output:
 		set file_name, file("in.1.fq"), file("in.2.fq") into fq_ch
 	tag "$file_name"
-	
-	container = '/users/bag/deyre/analysis/spades-flow/singularity/spades-flow.img'
-	executor = 'sge'
-	queue = 'short.qc'
-    clusterOptions = '-P bag.prjc'
-    errorStrategy { task.attempt<2 ? 'retry' : 'ignore'}
 	
 	"""
 	samtools sort -@${task.cpus} -n -o sorted.bam in.bam
@@ -95,11 +78,6 @@ process kraken2 {
 		file "*"
 	
 	tag "$file_name"
-	
-	executor = 'sge'
-	queue = 'short.qc'
-    clusterOptions = '-P bag.prjc'
-    errorStrategy { task.attempt<2 ? 'retry' : 'ignore'}
     
     publishDir "${outputPath}/${firstThree(file_name)}", mode: 'copy', pattern: "${file_name}*"
 
@@ -119,11 +97,6 @@ process rawFastQC {
 		file "*"
 	
 	tag "$file_name"
-	container = '/users/bag/deyre/analysis/spades-flow/singularity/spades-flow.img'
-	executor = 'sge'
-	queue = 'short.qc'
-    clusterOptions = '-P bag.prjc'
-    errorStrategy { task.attempt<2 ? 'retry' : 'ignore'}
     
 	publishDir "${outputPath}/${firstThree(file_name)}", mode: 'copy', pattern: "${file_name}*"
 	
@@ -148,12 +121,6 @@ process bbDuk {
 		file("${file_name}_length.txt")
 	
 	tag "$file_name"
-	container = '/users/bag/deyre/analysis/spades-flow/singularity/spades-flow.img'
-	executor = 'sge'
-	queue = 'short.qc'
-    clusterOptions = '-P bag.prjc'
-    memory '8 GB'
-    errorStrategy { task.attempt<2 ? 'retry' : 'ignore'}
     
     publishDir "${outputPath}/${firstThree(file_name)}", mode: 'copy', pattern: "${file_name}*"
 	
@@ -180,11 +147,6 @@ process cleanFastQC {
 		file "*"
 	
 	tag "$file_name"
-	container = '/users/bag/deyre/analysis/spades-flow/singularity/spades-flow.img'
-	executor = 'sge'
-	queue = 'short.qc'
-    clusterOptions = '-P bag.prjc'
-    errorStrategy { task.attempt<2 ? 'retry' : 'ignore'}
     
 	publishDir "${outputPath}/${firstThree(file_name)}", mode: 'copy', pattern: "${file_name}*"
 	
@@ -208,13 +170,6 @@ process spades {
 	tag "$file_name"
 	
 	publishDir "${outputPath}/${firstThree(file_name)}", mode: 'copy', pattern: "${file_name}_*"
-
-	container = '/users/bag/deyre/analysis/spades-flow/singularity/spades-flow.img'
-	executor = 'sge'
-	queue = 'short.qc'
-    clusterOptions = '-P bag.prjc'
-    memory '16 GB'
-    errorStrategy { task.attempt<2 ? 'retry' : 'ignore'}
     
 	"""
 	spades.py --careful -o spades -1 clean.1.fq -2 clean.2.fq \
@@ -236,12 +191,6 @@ process cgmlst {
 		file "${file_name}_cgmlst.*"
 	
 	tag "$file_name"
-	
-	publishDir "${outputPath}/${firstThree(file_name)}", mode: 'copy', pattern: "${file_name}_cgmlst.*"
-	executor = 'sge'
-	queue = 'short.qc'
-    clusterOptions = '-P bag.prjc'
-	module 'python/3.4.3'
 	
 	"""
 	#get stats

@@ -26,11 +26,14 @@ singularity shell hash-cgmlst.img
 ### miniKraken2
 Fetch the miniKraken2 database, from the root of the repository
 ```
+mkdir minikraken2
 cd minikraken2
 wget ftp://ftp.ccb.jhu.edu/pub/data/kraken2_dbs/minikraken2_v1_8GB_201904_UPDATE.tgz
 tar -xzf minikraken2_v1_8GB_201904_UPDATE.tgz
+rm minikraken2_v1_8GB_201904_UPDATE.tgz
 cd minikraken2_v1_8GB
-cp * ../
+mv * ../
+cd ..
 rmdir minikraken2_v1_8GB
 ```
 
@@ -42,3 +45,6 @@ A version of this is included - it can be updated if desired. [Instructions to f
 At present the scripts are designed to be run on a specific server set-up. More generalised versions of the scripts will follow.
 
 To run the cgMLST analysis
+```
+nextflow hash-cgMLST.nf --seqlist comparison_study_data/replicates_input.csv --outputPath comparison_study_data/replicates_output -resume -profilie ophelia
+```

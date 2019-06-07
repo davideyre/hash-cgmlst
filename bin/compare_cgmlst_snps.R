@@ -6,7 +6,7 @@ library(gridExtra)
 library(ggthemes)
 theme_set(theme_bw() + theme(axis.title = element_text(size = 10.5)))
 
-setwd("~/Drive/academic/infrastructure/spade-flow/")
+setwd("~/Drive/academic/infrastructure/hash-cgmlst/comparison_study_data/")
 
 ## REPLICATES ##
 #read in replicate list
@@ -100,10 +100,10 @@ lower.bp = med.bp *.9
 upper.bp = med.bp * 1.1
 
 result.filtered = result.complete %>% 
-    filter(contig_bp.1>lower.bp & contig_bp.1<upper.bp & 
-             contig_bp.2>lower.bp & contig_bp.2<upper.bp &
-             cov.1 >=50 & cov.2 >=50 &
-             max_length.1!=501 & max_length.2!=501)
+  filter(contig_bp.1>lower.bp & contig_bp.1<upper.bp & 
+           contig_bp.2>lower.bp & contig_bp.2<upper.bp &
+           cov.1 >=50 & cov.2 >=50 &
+           max_length.1!=501 & max_length.2!=501)
 
 print(table(result.filtered$differences))
 
@@ -192,7 +192,7 @@ kruskal.test(rl.min.gp ~ differences, data=result.filtered)
 
 result.filtered$diff.above2 = ifelse(result.filtered$differences>2,1,0)
 
-result.filtered %>% group_by(rl.min.gp) %>% summarise(n = count(diff.above2))
+result.filtered %>% group_by(rl.min.gp) %>% summarise(n = length(differences), above2=sum(diff.above2))
 
 
 ggsave("figure2.pdf", p2, width = 17, height = 10, units="cm")
@@ -214,7 +214,7 @@ p3a = ggplot(result.filtered, aes(x=contig_bp.max/med.bp*100, y=differences, col
        color="Isolate DNA")
 
 kruskal.test(contig_bp.max ~ differences, data=result.filtered)
-
+cor.test(x=result.filtered$contig_bp.max, y=result.filtered$differences, method='spearman')
 
 p3b = ggplot(result.filtered, aes(x=as.numeric(n50.max), y=differences, color=pool)) +
   geom_jitter() +
@@ -225,6 +225,11 @@ p3b = ggplot(result.filtered, aes(x=as.numeric(n50.max), y=differences, color=po
        color="Isolate DNA")
 kruskal.test(n50.max ~ differences, data=result.filtered)
 cor.test(x=result.filtered$n50.max, y=result.filtered$differences, method='spearman')
+
+#false differences>2 by N50 <= 125
+result.filtered$n50.above125 = ifelse(result.filtered$n50.max<=125,0,1)
+result.filtered %>% group_by(n50.above125) %>% summarise(n = length(differences), above2=sum(diff.above2))
+result.filtered %>% group_by(n50.above125, pool) %>% summarise(n = length(differences), above2=sum(diff.above2))
 
 #contig count and differences
 p3c = ggplot(result.filtered, aes(x=contigs.max, y=differences, color=pool)) +
@@ -292,3 +297,6 @@ mean(result.subset$differences)
 table(result.subset$pw_snps)
 mean(result.subset$pw_snps)
 1/mean(result.subset$pw_snps)
+
+#median assembly size
+med.bp
