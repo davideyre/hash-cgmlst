@@ -21,7 +21,7 @@ log.info "\n"
 
 // rename input parameters
 outputPath = file(params.outputPath)
-krakendb = file(parms.krakendb)
+krakendb = file(params.krakendb)
 
 //location for bbduk adapter sequences
 bbduk_adapaters = "/opt/conda/opt/bbmap-38.22-1/resources/adapters.fa" //path within docker/singularity image
