@@ -42,7 +42,7 @@ class CgMLST:
 	def checkBlastDB(self):
 		if not os.path.exists( "%s.nhr"%self.contigsPath ):
 			#attempt to make blastDB
-			cmd = "/apps/htseq/ncbi-blast/bin/makeblastdb -dbtype nucl -in %s"%self.contigsPath
+			cmd = "makeblastdb -dbtype nucl -in %s"%self.contigsPath
 			try:
 				os.system(cmd)
 			except:
