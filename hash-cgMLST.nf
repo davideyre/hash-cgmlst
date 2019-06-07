@@ -3,7 +3,7 @@
 // parameters 
 params.seqlist = "example_input.csv"
 params.outputPath = "example_output"
-parms.krakendb = "minikraken2" //location of minikrakenDB
+params.krakendb = "minikraken2" //location of minikrakenDB
 
 def firstThree( str ) {
     return str.substring(0,3)
