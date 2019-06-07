@@ -197,10 +197,10 @@ process cgmlst {
 	/opt/conda/opt/bbmap-38.22-1/stats.sh in=${file_name}_spades_contigs.fa > ${file_name}_cgmlst.stats
 	/opt/conda/opt/bbmap-38.22-1/statswrapper.sh in=${file_name}_spades_contigs.fa > ${file_name}_cgmlst.statlog
 	#run hash cgmlst
-	bin/getCoreGenomeMLST.py -f ${file_name}_spades_contigs.fa \
+	${baseDir}/bin/getCoreGenomeMLST.py -f ${file_name}_spades_contigs.fa \
 		-n ${file_name} \
-		-s ridom_scheme/files \
-		-d ridom_scheme/ridom_scheme.fasta \
+		-s ${baseDir}/ridom_scheme/files \
+		-d ${baseDir}/ridom_scheme/ridom_scheme.fasta \
 		-o ${file_name} \
 		-b blastn
 	"""	
