@@ -1,6 +1,6 @@
 private.md
-singularity/cgmlst.img
+singularity/hash-cgmlst.img
 comparison_study_data
-minikraken2/*
+minikraken2
 nextflow/work
 nextflow/reporting
