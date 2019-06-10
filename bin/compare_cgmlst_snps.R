@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 rm(list = ls())
 library(dplyr)
+library(tidyr)
 library(ggplot2)
 library(gridExtra)
 library(ggthemes)
@@ -300,3 +301,15 @@ mean(result.subset$pw_snps)
 
 #median assembly size
 med.bp
+
+
+#### BENCHMARKING ####
+trace = read.table("trace.txt", header=TRUE, sep='\t', stringsAsFactors = F) %>% as_tibble()
+trace = trace %>% select(c("tag", "process", "realtime"))
+trace.wide = trace %>% spread(process, realtime)
+trace.wide$qc = trace.wide$bbDuk + trace.wide$rawFastQC + trace.wide$cleanFastQC + trace.wide$kraken2
+trace.wide = trace.wide %>% select(c("qc", "spades", "cgmlst"))
+
+quantile(trace.wide$qc/1000/60, na.rm=T)
+quantile(trace.wide$spades/1000/60, na.rm=T)
+quantile(trace.wide$cgmlst/1000/60, na.rm=T)
