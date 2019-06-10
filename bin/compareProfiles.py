@@ -23,10 +23,12 @@ def compareHash(input_folder, compareOut):
 	start = time.time()
 	for i in range(0, len(jsonList)):
 		sys.stdout.write("%s\n"%i)
-		a1 = [int(jsonList[i]['alleles'][k],16) for k in jsonList[i]['alleles'].keys()]
+		a1 = [int(jsonList[i]['alleles'][k],16) if jsonList[i]['alleles'][k]
+				else "" for k in jsonList[i]['alleles'].keys()]
 		for j in range(0, len(jsonList)):
 			if i<j:
-				a2 = [int(jsonList[j]['alleles'][k],16) for k in jsonList[i]['alleles'].keys()]
+				a2 = [int(jsonList[j]['alleles'][k],16) if jsonList[j]['alleles'][k]
+					else "" for k in jsonList[i]['alleles'].keys()]
 				compared = 0
 				diff = 0
 				compared = len([True for l1,l2 in zip(a1,a2) if l1 and l2])
