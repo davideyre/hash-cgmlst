@@ -310,6 +310,11 @@ trace.wide = trace %>% spread(process, realtime)
 trace.wide$qc = trace.wide$bbDuk + trace.wide$rawFastQC + trace.wide$cleanFastQC + trace.wide$kraken2
 trace.wide = trace.wide %>% select(c("qc", "spades", "cgmlst"))
 
-quantile(trace.wide$qc/1000/60, na.rm=T)
-quantile(trace.wide$spades/1000/60, na.rm=T)
-quantile(trace.wide$cgmlst/1000/60, na.rm=T)
+round(quantile(trace.wide$qc/1000/60, na.rm=T),1)
+round(quantile(trace.wide$spades/1000/60, na.rm=T),1)
+round(quantile(trace.wide$cgmlst/1000, na.rm=T),1)
+
+#time to compare
+t = 92.73947334289551
+n = 229504
+t/n*1e5
