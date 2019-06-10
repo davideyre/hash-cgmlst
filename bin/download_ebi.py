@@ -52,7 +52,6 @@ def download_ebi(acc, outdir):
 			sys.exit()
 	
 	#download the file
-	outdir = '/Users/davideyre/Desktop'
 	with ftplib.FTP('ftp.sra.ebi.ac.uk') as ftp:
 		ftp.login()
 		for f, md5 in zip(file_pair, md5_pair):
