@@ -314,7 +314,12 @@ round(quantile(trace.wide$qc/1000/60, na.rm=T),1)
 round(quantile(trace.wide$spades/1000/60, na.rm=T),1)
 round(quantile(trace.wide$cgmlst/1000, na.rm=T),1)
 
-#time to compare
+#time to compare - hash cgmlst
 t = 92.73947334289551
 n = 229504
 t/n*1e5
+
+# standard mlst
+t.cgmlst = 88.82461214065552
+n = 229504
+t.cgmlst/n*1e5
