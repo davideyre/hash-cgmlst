@@ -4,7 +4,7 @@ import json, glob, sys
 from optparse import OptionParser
 
 
-def compareHash(input_folder, compareOut)
+def compareHash(input_folder, compareOut):
 	fileList = glob.glob('%s/*/*.json'%input_folder)
 	w = open(compareOut, 'w')
 	w.write('id1\tid2\tloci_compared\tdifferences\tdist\n')
