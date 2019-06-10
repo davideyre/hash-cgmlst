@@ -25,7 +25,8 @@ From: singularityhub/ubuntu
 				  numpy=1.15.4 \
 				  biopython=1.72 \
 				  bedtools=2.28.0 \
-				  kraken2=2.0.8_beta
+				  kraken2=2.0.8_beta \
+				  pandas=0.24.2
     
     mkdir /data
     

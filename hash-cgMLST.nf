@@ -80,6 +80,11 @@ process makeFastQ {
 		rm sorted.bam
 		"""
 		}
+		else {
+		"""
+		
+		"""
+		}
 }
 
 //split raw reads into 3 channels - for QC and assembly and kraken2
