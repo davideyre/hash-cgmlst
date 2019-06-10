@@ -44,12 +44,12 @@ process fetchReads {
 	tag "$file_name"
 	
 	script:
-		if (file_type=="bam") {
+		if (file_type=="bam") { 
 			"""
 			scp -P 8081 ana:/mnt/microbio/ndm-hicf/ogre/pipeline_output/${file_name}/MAPPING/103e39d6-096c-46da-994d-91c5acbda565_R00000003/STD/${file_name}_v3.bam in.bam || scp -P 8081 ana:/mnt/microbio/ndm-hicf/ogre/pipeline_output/${file_name}/MAPPING/103e39d6-096c-46da-994d-91c5acbda565_R00000003/STD/${file_name}_v2.bam in.bam
 			"""
 		}
-		if (file_type=="ebi") {
+		else if (file_type=="ebi") {
 			"""
 			${baseDir}/bin/download_ebi.py -a ${file_name} -o .
 			mv *_1.fastq.gz in.1.fq.gz
@@ -58,6 +58,7 @@ process fetchReads {
 			gunzip in.2.fq.gz
 			"""
 		}
+		
 
 
 }
