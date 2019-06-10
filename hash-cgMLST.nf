@@ -35,28 +35,41 @@ Channel
     .set { samples_ch }
 
 
-process fetchBam {
+process fetchReads {
 	
 	input:
 		set file_type, file_name from samples_ch
 	output:
-		set file_name, file("in.bam") into bam_ch
+		set file_name, file_type, file("*") into reads_ch
 	tag "$file_name"
 	
-	"""
-	scp -P 8081 ana:/mnt/microbio/ndm-hicf/ogre/pipeline_output/${file_name}/MAPPING/103e39d6-096c-46da-994d-91c5acbda565_R00000003/STD/${file_name}_v3.bam in.bam || scp -P 8081 ana:/mnt/microbio/ndm-hicf/ogre/pipeline_output/${file_name}/MAPPING/103e39d6-096c-46da-994d-91c5acbda565_R00000003/STD/${file_name}_v2.bam in.bam
-	"""
+	if (file_type=="bam") {
+		"""
+		scp -P 8081 ana:/mnt/microbio/ndm-hicf/ogre/pipeline_output/${file_name}/MAPPING/103e39d6-096c-46da-994d-91c5acbda565_R00000003/STD/${file_name}_v3.bam in.bam || scp -P 8081 ana:/mnt/microbio/ndm-hicf/ogre/pipeline_output/${file_name}/MAPPING/103e39d6-096c-46da-994d-91c5acbda565_R00000003/STD/${file_name}_v2.bam in.bam
+		"""
+	}
+	if (file_type=="ebi") {
+		"""
+		${baseDir}/bin/download_ebi.py -a ${file_name} -o .
+		mv *_1.fastq.gz in.1.fq.gz
+		mv *_2.fastq.gz in.2.fq.gz
+		gunzip in.1.fq.gz
+		gunzip in.2.fq.gz
+		"""
+	}
+
 
 }
 
 
 process makeFastQ {
 	input:
-		set file_name, file("in.bam") from bam_ch
+		set file_name, file_type, file("*") from reads_ch
 	output:
 		set file_name, file("in.1.fq"), file("in.2.fq") into fq_ch
 	tag "$file_name"
 	
+	if (file_type=="bam") {
 	"""
 	samtools sort -@${task.cpus} -n -o sorted.bam in.bam
 	bedtools bamtofastq -i sorted.bam \
@@ -64,6 +77,7 @@ process makeFastQ {
                       -fq2 in.2.fq
     rm sorted.bam
 	"""
+	}
 }
 
 //split raw reads into 3 channels - for QC and assembly and kraken2
