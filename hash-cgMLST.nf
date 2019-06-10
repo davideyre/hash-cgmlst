@@ -191,6 +191,7 @@ process cgmlst {
 		file "${file_name}_cgmlst.*"
 	
 	tag "$file_name"
+	publishDir "${outputPath}/${firstThree(file_name)}", mode: 'copy', pattern: "${file_name}_cgmlst.*"
 	
 	"""
 	#get stats
