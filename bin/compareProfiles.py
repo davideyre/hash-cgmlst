@@ -1,21 +1,31 @@
 #!/usr/bin/env python3
 
-import json, glob, sys
+import json, glob, sys, time
 from optparse import OptionParser
 
 
 def compareHash(input_folder, compareOut):
+import time
+
+
+
+print(end - start)
 	fileList = glob.glob('%s/*/*.json'%input_folder)
 	w = open(compareOut, 'w')
 	w.write('id1\tid2\tloci_compared\tdifferences\tdist\n')
 	jsonList = []
 	
 	sys.stdout.write("Reading in JSON files\n")
+	start = time.time()
 	for f in fileList:
 		with open(f, 'r') as fp:
 			j = json.load(fp)
 			jsonList.append(j)
+	end = time.time()
+	sys.stdout.write("Seconds to read in files: %s\n"%(end - start))
 	
+	sys.stdout.write("Comparing profiles\n")
+	start = time.time()
 	for i in range(0, len(jsonList)):
 		sys.stdout.write("%s\n"%i)
 		a1 = [jsonList[i]['alleles'][k] for k in jsonList[i]['alleles'].keys()]
@@ -34,6 +44,8 @@ def compareHash(input_folder, compareOut):
 				w.write('%s\t%s\t%s\t%s\t%s\n'%(jsonList[i]['name'], jsonList[j]['name'], compared, diff, ratio))
 	
 	w.close()
+	end = time.time()
+	sys.stdout.write("Seconds to compare profiles: %s\n"%(end - start))
 
 
 if __name__ == "__main__":
