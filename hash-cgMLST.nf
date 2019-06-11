@@ -5,8 +5,8 @@ params.seqlist = "example_input.csv"
 params.outputPath = "example_output"
 params.krakendb = "minikraken2" //location of minikrakenDB
 
-def firstThree( str ) {
-    return str.substring(0,3)
+def firstFive( str ) {
+    return str.substring(0,5)
 }
 
 
@@ -103,7 +103,7 @@ process kraken2 {
 	
 	tag "$file_name"
     
-    publishDir "${outputPath}/${firstThree(file_name)}", mode: 'copy', pattern: "${file_name}*"
+    publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}*"
 
 	"""
 	kraken2 --report ${file_name}_kraken.txt --db ${krakendb} --paired in.1.fq in.2.fq > /dev/null
@@ -122,7 +122,7 @@ process rawFastQC {
 	
 	tag "$file_name"
     
-	publishDir "${outputPath}/${firstThree(file_name)}", mode: 'copy', pattern: "${file_name}*"
+	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}*"
 	
 	"""
 	cat in.1.fq in.2.fq > ${file_name}.raw.fq
@@ -147,7 +147,7 @@ process bbDuk {
 	tag "$file_name"
 	memory '8 GB' //not able to use 16GB standard
     
-    publishDir "${outputPath}/${firstThree(file_name)}", mode: 'copy', pattern: "${file_name}*"
+    publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}*"
 	
 	"""
 	bbduk.sh in1=in.1.fq in2=in.2.fq out1=clean.1.fq out2=clean.2.fq \
@@ -173,7 +173,7 @@ process cleanFastQC {
 	
 	tag "$file_name"
     
-	publishDir "${outputPath}/${firstThree(file_name)}", mode: 'copy', pattern: "${file_name}*"
+	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}*"
 	
 	"""
 	cat clean.1.fq clean.2.fq > ${file_name}.clean.fq
@@ -194,7 +194,7 @@ process spades {
 			
 	tag "$file_name"
 	
-	publishDir "${outputPath}/${firstThree(file_name)}", mode: 'copy', pattern: "${file_name}_*"
+	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}_*"
     
 	"""
 	spades.py --careful -o spades -1 clean.1.fq -2 clean.2.fq \
@@ -216,7 +216,7 @@ process cgmlst {
 		file "${file_name}_cgmlst.*"
 	
 	tag "$file_name"
-	publishDir "${outputPath}/${firstThree(file_name)}", mode: 'copy', pattern: "${file_name}_cgmlst.*"
+	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}_cgmlst.*"
 	
 	"""
 	#get stats
