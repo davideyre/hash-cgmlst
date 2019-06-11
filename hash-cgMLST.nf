@@ -43,6 +43,8 @@ process fetchReads {
 		set file_name, file_type, file("*") into reads_ch
 	tag "$file_name"
 	
+	executor = 'local'
+	
 	script:
 		if (file_type=="bam") { 
 			"""
