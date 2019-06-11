@@ -145,6 +145,7 @@ process bbDuk {
 		file("${file_name}_length.txt")
 	
 	tag "$file_name"
+	memory '8 GB' //not able to use 16GB standard
     
     publishDir "${outputPath}/${firstThree(file_name)}", mode: 'copy', pattern: "${file_name}*"
 	
