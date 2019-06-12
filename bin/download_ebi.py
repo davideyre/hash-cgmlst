@@ -52,7 +52,7 @@ def download_ebi(acc, outdir):
 			sys.exit()
 	
 	#download the file
-	with ftplib.FTP('ftp.sra.ebi.ac.uk') as ftp:
+	with ftplib.FTP('ftp.sra.ebi.ac.uk', timeout=300) as ftp:
 		ftp.login()
 		for f, md5 in zip(file_pair, md5_pair):
 			ftp_url = f.replace('ftp.sra.ebi.ac.uk', '')
