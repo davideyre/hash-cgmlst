@@ -76,7 +76,7 @@ def kraken_summary(inpath, outpath):
 		o.write(out)
 	o.close()
 
-def get_cg_mlst_called(inpath, outpath):
+def get_cgmlst_called(inpath, outpath):
 	fileList = glob.glob('%s/*/*.json'%inpath)
 	outfile = '%scgmlst_called_summary.txt'%outpath
 	o = open(outfile, 'w')
@@ -103,3 +103,4 @@ if __name__ == "__main__":
 	read_summary(inpath, outpath)
 	read_qc(inpath, outpath)
 	kraken_summary(inpath, outpath)
+	get_cgmlst_called(inpath, outpath)
