@@ -209,9 +209,12 @@ process spades {
 	"""
 }
 
+//split assembly into 2 channels - for cgmlst and mslt
+spades_out.into { spades_out_ch1; spades_out_ch2; }
+
 process cgmlst {
 	input:
-	 	set file_name, file("${file_name}_spades_contigs.fa") from spades_out
+	 	set file_name, file("${file_name}_spades_contigs.fa") from spades_out_ch1
 	output:
 		file "${file_name}_cgmlst.*"
 	
@@ -229,5 +232,19 @@ process cgmlst {
 		-d ${baseDir}/ridom_scheme/ridom_scheme.fasta \
 		-o ${file_name} \
 		-b blastn
+	"""	
+}
+
+process mlst {
+	input:
+	 	set file_name, file("${file_name}_spades_contigs.fa") from spades_out_ch2
+	output:
+		file "${file_name}_mlst.txt"
+	
+	tag "$file_name"
+	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}_mlst.txt"
+	
+	"""
+	mlst --scheme cdifficile --legacy  ${file_name}_spades_contigs.fa > ${file_name}_mlst.txt
 	"""	
 }
