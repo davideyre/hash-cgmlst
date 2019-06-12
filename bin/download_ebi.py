@@ -62,8 +62,9 @@ def download_ebi(acc, outdir):
 			while (file_md5 != md5):
 				ftp.retrbinary('RETR {0}'.format(ftp_url), open(out_file, 'wb').write)
 				file_md5 = get_md5(out_file)
+				i = i + 1
 				if i>3:
-					sys.stderr.write("Error: Persistent failure to match md5 for %s\n"%(accession))
+					sys.stderr.write("Error: Persistent failure to match md5 for %s - %s\n"%(accession, ftp_url))
 					sys.exit()
 			
 if __name__ == "__main__":
