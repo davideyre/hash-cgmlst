@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 
-# e.g. bin/get_qc_summary.py -i comparison_study_data/replicates_output -o  comparison_study_data/replicates_
+## e.g. 
+# cd comparison_study_data/six_hospitals
+# ../../bin/get_qc_summary.py -i . -o six_hospitals_
+## also wish to run get_assembly_stats.sh
+# ../../bin/get_assembly_stats.sh
+
 import json, glob, sys
 from optparse import OptionParser
 
