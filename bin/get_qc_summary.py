@@ -76,6 +76,20 @@ def kraken_summary(inpath, outpath):
 		o.write(out)
 	o.close()
 
+def get_cg_mlst_called(inpath, outpath):
+	fileList = glob.glob('%s/*/*.json'%inpath)
+	outfile = '%scgmlst_called_summary.txt'%outpath
+	o = open(outfile, 'w')
+	o.write('id\tgenes_called\n')	
+	
+	for file in fileList:
+		with open(file, 'r') as fp:
+			j = json.load(fp)
+			id = j['name']
+			called_genes = length([k for k in j['alleles'].keys() if j['alleles'][k]])
+			o.write('%s\t%s\n'%(id, called_genes))
+	o.close()
+
 if __name__ == "__main__":
 	
 	parser = OptionParser()
