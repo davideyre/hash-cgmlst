@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-# e.g. cd getKrakenSummary.py -i comparison_study_data/replicates_output -o  comparison_study_data/replicates_kraken_summary.txt
+# e.g. bin/getKrakenSummary.py -i comparison_study_data/replicates_output -o  comparison_study_data/replicates_kraken_summary.txt
 import json, glob, sys
 from optparse import OptionParser
 
-def kraken_summary(inpath, outfile)
+def kraken_summary(inpath, outfile):
 	fileList = glob.glob('%s/*/*_kraken.txt'%inpath)
 	o = open(outfile, 'w')
 	o.write('id\ttotal\tunclassified\tcdiff\tother\ttop_species\ttop_species2\ttop_species3\n')
