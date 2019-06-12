@@ -86,7 +86,7 @@ def get_cgmlst_called(inpath, outpath):
 		with open(file, 'r') as fp:
 			j = json.load(fp)
 			id = j['name']
-			called_genes = length([k for k in j['alleles'].keys() if j['alleles'][k]])
+			called_genes = len([k for k in j['alleles'].keys() if j['alleles'][k]])
 			o.write('%s\t%s\n'%(id, called_genes))
 	o.close()
 
