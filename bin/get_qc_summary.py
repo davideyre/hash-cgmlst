@@ -11,7 +11,7 @@ def read_summary(inpath, outpath):
 	o.write('id\tmax_length\n')
 	
 	for file in fileList:
-		id = file.split('/')[-1].split('_')[0][0:8]
+		id = file.split('/')[-1].split('_')[0]
 		f = open(file, 'r')
 		for l in f:
 			l = l.strip().split()
@@ -28,7 +28,7 @@ def read_qc(inpath, outpath):
 	w.write('id\tcoverage\tperc_q30\n')
 	
 	for file in fileList:
-		id = file.split('/')[-1].split('_')[0][0:8]
+		id = file.split('/')[-1].split('_')[0]
 		f = open(file, "r")
 		header = next(f) #Quality	count1	fraction1	count2	fraction2
 		total_bases = 0
@@ -48,7 +48,7 @@ def kraken_summary(inpath, outpath):
 	o.write('id\ttotal\tunclassified\tcdiff\tother\ttop_species\ttop_species2\ttop_species3\n')
 	
 	for file in fileList:
-		id = file.split('/')[-1].split('_')[0][0:8]
+		id = file.split('/')[-1].split('_')[0]
 		f = open(file, 'r')
 		total = 0
 		cdiff = 0
