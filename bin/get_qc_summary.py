@@ -21,7 +21,7 @@ def read_summary(inpath, outpath):
 	
 	o.close()
 	
-def read_qc(inpath, outpath)
+def read_qc(inpath, outpath):
 	fileList = glob.glob('%s/*/*_base_qual.txt'%inpath)
 	outfile = '%sreads_summary.txt'%outpath
 	w = open(outfile, 'w')
