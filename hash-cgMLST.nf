@@ -231,7 +231,7 @@ process cgmlst {
 		-s ${baseDir}/ridom_scheme/files \
 		-d ${baseDir}/ridom_scheme/ridom_scheme.fasta \
 		-o ${file_name} \
-		-b blastn
+		-b blastn 
 	"""	
 }
 
