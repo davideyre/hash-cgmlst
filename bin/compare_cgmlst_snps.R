@@ -147,7 +147,7 @@ ggplot(result.filtered, aes(x=as.numeric(cov.min), y=as.numeric(acgt.min))) +
 
 
 #### FIGURES ####
-setwd("/Users/davideyre/Drive/academic/infrastructure/cgmlst/manuscript/figures")
+setwd("/Users/davideyre/Drive/academic/infrastructure/cgmlst_archive/manuscript/figures")
 
 ### FIGURE 1 - distributions of differences and SNPs
 col = tableau_color_pal('Tableau 10')(1)
@@ -163,19 +163,21 @@ result.filtered$snp_cut = cut(result.filtered$pw_snps,
 p1a = ggplot(result.filtered, aes(x=diff_cut)) +
   geom_bar(fill=col) +
   labs(y="Frequency", x="cgMLST gene differences\nbetween replicate sequences") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  ylim(0,250)
 
 p1b = ggplot(result.filtered, aes(x=snp_cut)) +
   geom_bar(fill=col) + scale_fill_discrete(drop=FALSE) + scale_x_discrete(drop=FALSE) +
   labs(y="Frequency", x="SNP differences\nbetween replicate sequences") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  ylim(0,250)
 
 p1 = grid.arrange(p1a, p1b, ncol = 2, nrow = 1)
 
 ggsave("figure1.pdf", p1, width = 20, height = 10, units="cm")
 
 ### FIGURE 2 - relationship between cgMLST gene differences and coverage and read length
-col = tableau_color_pal('Tableau 10')(10)[c(1,2,3)]
+col = tableau_color_pal('Tableau 10')(10)[c(10,1,2)]
 #coverage and differences
 result.filtered$rl.min.gp = as.factor(round((result.filtered$rl.min)/50)*50) #covert minimum read lengths to factor
 
@@ -186,8 +188,10 @@ p2 = ggplot(result.filtered, aes(x=as.numeric(cov.min), y=differences, color=rl.
        x="Minimum average genome coverage in sequence pair",
        color="Minimum read length in sequence pair") +
   theme(legend.position="bottom")
+
 kruskal.test(cov.min ~ differences, data=result.filtered)
 cor.test(x=result.filtered$cov.min, y=result.filtered$differences, method='spearman')
+
 
 kruskal.test(rl.min.gp ~ differences, data=result.filtered)
 

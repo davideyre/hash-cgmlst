@@ -69,8 +69,11 @@ class CgMLST:
 			self.matches[locus] = None #default to empty record
 			## should just be a single hit, i.e. one alignemnt, and one hsp within that alignment
 			if (len(record.alignments)==1):
-				# check if the matched length is >=99% of the query length
-				if (record.alignments[ 0 ].hsps[ 0 ].align_length / record.query_length) >=0.99:
+				# check if the matched length is >=99% of the query length and
+				#   also check that start of query matches start and end matches end to ensure avoid truncation by contig breaks
+				if (record.alignments[ 0 ].hsps[ 0 ].align_length / record.query_length) >=0.99 and
+						record.alignments[0].hsps[0].query_start==1 and 
+						record.alignments[0].hsps[0].query_end == record.query_length:
 					# save the hit - percentage identity is ensured from blast search criteria above as >=90%
 					self.matches[locus] = record.alignments[ 0 ].hsps[ 0 ].sbjct
 	
