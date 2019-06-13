@@ -71,9 +71,9 @@ class CgMLST:
 			if (len(record.alignments)==1):
 				# check if the matched length is >=99% of the query length and
 				#   also check that start of query matches start and end matches end to ensure avoid truncation by contig breaks
-				if (record.alignments[ 0 ].hsps[ 0 ].align_length / record.query_length) >=0.99 and
+				if ((record.alignments[ 0 ].hsps[ 0 ].align_length / record.query_length) >=0.99 and
 						record.alignments[0].hsps[0].query_start==1 and 
-						record.alignments[0].hsps[0].query_end == record.query_length:
+						record.alignments[0].hsps[0].query_end == record.query_length):
 					# save the hit - percentage identity is ensured from blast search criteria above as >=90%
 					self.matches[locus] = record.alignments[ 0 ].hsps[ 0 ].sbjct
 	
