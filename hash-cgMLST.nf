@@ -56,8 +56,6 @@ process fetchReads {
 			${baseDir}/bin/download_ebi.py -a ${file_name} -o .
 			mv *_1.fastq.gz in.1.fq.gz
 			mv *_2.fastq.gz in.2.fq.gz
-			gunzip in.1.fq.gz
-			gunzip in.2.fq.gz
 			"""
 		}
 		
@@ -81,6 +79,8 @@ process makeFastQ {
 						  -fq in.1.fq \
 						  -fq2 in.2.fq
 		rm sorted.bam
+		gzip in.1.fq
+		gzip in.2.fq
 		"""
 		}
 		else {
@@ -96,7 +96,7 @@ fq_ch.into { fq_ch1; fq_ch2; fq_ch3}
 process kraken2 {
 
 	input:
-    	set file_name, file("in.1.fq"), file("in.2.fq") from fq_ch3
+    	set file_name, file("in.1.fq.gz"), file("in.2.fq.gz") from fq_ch3
 	
 	output:
 		file "*"
@@ -106,7 +106,7 @@ process kraken2 {
     publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}*"
 
 	"""
-	kraken2 --report ${file_name}_kraken.txt --db ${krakendb} --paired in.1.fq in.2.fq > /dev/null
+	kraken2 --report ${file_name}_kraken.txt --db ${krakendb} --paired in.1.fq.gz in.2.fq.gz > /dev/null
 	"""
 
 }
@@ -115,7 +115,7 @@ process kraken2 {
 process rawFastQC {
 	
 	input:
-    	set file_name, file("in.1.fq"), file("in.2.fq") from fq_ch1
+    	set file_name, file("in.1.fq.gz"), file("in.2.fq.gz") from fq_ch1
 	
 	output:
 		file "*"
@@ -125,9 +125,9 @@ process rawFastQC {
 	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}*"
 	
 	"""
-	cat in.1.fq in.2.fq > ${file_name}.raw.fq
-	fastqc --threads ${task.cpus} ${file_name}.raw.fq > ${file_name}_raw_fastqc_log.txt
-	rm ${file_name}.raw.fq
+	cat in.1.fq.gz in.2.fq.gz > ${file_name}.raw.fq.gz
+	fastqc --threads ${task.cpus} ${file_name}.raw.fq.gz > ${file_name}_raw_fastqc_log.txt
+	rm ${file_name}.raw.fq.gz
 	"""
 
 }
@@ -137,10 +137,10 @@ process rawFastQC {
 process bbDuk {
 	
 	input:
-		set file_name, file("in.1.fq"), file("in.2.fq") from fq_ch2
+		set file_name, file("in.1.fq.gz"), file("in.2.fq.gz") from fq_ch2
 	
 	output:
-		set file_name, file("clean.1.fq"), file("clean.2.fq") into bbduk_out_ch
+		set file_name, file("clean.1.fq.gz"), file("clean.2.fq.gz") into bbduk_out_ch
 		file("${file_name}_base_qual.txt")
 		file("${file_name}_length.txt")
 	
@@ -156,6 +156,8 @@ process bbDuk {
 				qchist=${file_name}_base_qual.txt \
 				lhist=${file_name}_length.txt \
 				-Xmx${task.memory.toGiga()}g threads=${task.cpus}
+	gzip clean.1.fq
+	gzip clean.2.fq
 	"""
 }
 
@@ -166,7 +168,7 @@ bbduk_out_ch.into { bbduk_out_ch1; bbduk_out_ch2; }
 process cleanFastQC {
 	
 	input:
-    	set file_name, file("clean.1.fq"), file("clean.2.fq") from bbduk_out_ch1
+    	set file_name, file("clean.1.fq.gz"), file("clean.2.fq.gz") from bbduk_out_ch1
 	
 	output:
 		file "*"
@@ -176,9 +178,9 @@ process cleanFastQC {
 	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}*"
 	
 	"""
-	cat clean.1.fq clean.2.fq > ${file_name}.clean.fq
-	fastqc --threads ${task.cpus} ${file_name}.clean.fq > ${file_name}_clean_fastqc_log.txt
-	rm ${file_name}.clean.fq
+	cat clean.1.fq.gz clean.2.fq.gz > ${file_name}.clean.fq.gz
+	fastqc --threads ${task.cpus} ${file_name}.clean.fq.gz > ${file_name}_clean_fastqc_log.txt
+	rm ${file_name}.clean.fq.gz
 	"""
 
 }
@@ -187,7 +189,7 @@ process cleanFastQC {
 process spades {
 
 	input:
-		set file_name, file("clean.1.fq"), file("clean.2.fq") from bbduk_out_ch2
+		set file_name, file("clean.1.fq.gz"), file("clean.2.fq.gz") from bbduk_out_ch2
 	
 	output:
 		set file_name, file("${file_name}_spades_contigs.fa") into spades_out
@@ -197,7 +199,7 @@ process spades {
 	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}_*"
     
 	"""
-	spades.py --careful -o spades -1 clean.1.fq -2 clean.2.fq \
+	spades.py --careful -o spades -1 clean.1.fq.gz -2 clean.2.fq.gz \
 		-t ${task.cpus} -m ${task.memory.toGiga()}
 	cp spades/contigs.fasta ${file_name}_spades_contigs.fa
 	cp spades/assembly_graph.fastg ${file_name}_spades_assembly_graph.fastg
@@ -205,7 +207,6 @@ process spades {
 	cp spades/spades.log ${file_name}_spades.log
 	#remove spades directory to save space
 	rm -rf spades*
-	rm clean.1.fq clean.2.fq
 	"""
 }
 
