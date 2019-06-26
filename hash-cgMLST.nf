@@ -150,7 +150,7 @@ process bbDuk {
     publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}*"
 	
 	"""
-	bbduk.sh in1=in.1.fq in2=in.2.fq out1=clean.1.fq out2=clean.2.fq \
+	bbduk.sh in1=in.1.fq.gz in2=in.2.fq.gz out1=clean.1.fq out2=clean.2.fq \
 				ref=$bbduk_adapaters ktrim=r k=23 mink=11 hdist=1 tpe tbo \
 				qtrim=rl trimq=30 \
 				qchist=${file_name}_base_qual.txt \
