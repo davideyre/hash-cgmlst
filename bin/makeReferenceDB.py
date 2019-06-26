@@ -1,7 +1,7 @@
 from Bio import SeqIO
 import os
 
-schemePath = '/Users/davideyre/Drive/academic/infrastructure/cgmlst/ridom_scheme/files'
+schemePath = '../ridom_scheme/files'
 lociList = os.listdir(schemePath)
 lociList.sort()
 
@@ -13,5 +13,5 @@ for locus in lociList:
 	seq.id = locus[:-6] #drop the .fasta from end of locus name
 	lociSeq.append(seq)
 
-dbFile = '/Users/davideyre/Drive/academic/infrastructure/cgmlst/ridom_scheme/reference_db.fasta'
+dbFile = '../ridom_scheme/reference_db.fasta'
 SeqIO.write(lociSeq, dbFile, 'fasta')

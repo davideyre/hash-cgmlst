@@ -38,7 +38,13 @@ rmdir minikraken2_v1_8GB
 ```
 
 ### cgmlst.org scheme
-A version of this is included - it can be updated if desired. [Instructions to follow.]
+A version of this is included - it can be updated if desired, but this is not required for hash-cgMLST.
+
+To update this, visit cgmlst.org and download the allele files for each gene to `ridom_scheme/files` and then run:
+```
+cd bin
+python makeReferenceDB.py
+```
 
 
 ## Running hash-cgMLST
@@ -56,6 +62,16 @@ nextflow hash-cgMLST.nf --seqlist example_data/example_input.csv --outputPath co
 This will download 2 example pairs of fastq files from EBI and process these through the pipeline. Please see `example_data/example_input.csv` for an example of an input file. The file type column should be set to ebi to download from EBI and the file_name column should be a sample or run identifier. 
 
 Using the `example_six_hospitals.csv` file as an input would allow you to run hash-cgMLST on the 973 samples used in the study describing hash-cgMLST.
+
+## Outputs
+Outputs provided include:
+ - QC data: `*_base_qual.txt`, `*_kraken.txt`, `*_length.txt`, `*.raw_fastqc.html`, `*.clean_fastqc.html`
+ - Spades contigs and assembly stats: `*_spades_contigs.fa`, `*_cgmlst.stats`
+ - cgMLST genes as a multifasta file: `*_cgmlst.fa`
+ - standard cgMLST calls as a json file: `*_cgmlst.profile` (no tracking of novel alleles is done, just recorded missing for now)
+ - hash-cgMLST calls as a json file: `*_cgmlst.json`
+ - standard MLST calls: `*_mlst.txt`
+
 
 ## Comparison scripts
 To run a comparison for hash-cgMLST profiles after the nextflow pipeline above is complete use the `bin/compareProfiles.py` script:
