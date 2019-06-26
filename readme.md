@@ -42,9 +42,30 @@ A version of this is included - it can be updated if desired. [Instructions to f
 
 
 ## Running hash-cgMLST
-At present the scripts are designed to be run on a specific server set-up. More generalised versions of the scripts will follow.
+At present the scripts are designed to be run on two specific server set-ups, each with its own profile. Updates can be made to the nextflow.config file for other set-ups. 
+
+The two profiles are:
+* cluster - an example implementation for a SGE based cluster
+* ophelia - an example for a local bare-metal server (would adapt to a stand-alone machine if the amount of memory available per core is changed)
 
 To run the cgMLST analysis
 ```
-nextflow hash-cgMLST.nf --seqlist comparison_study_data/example_input.csv --outputPath comparison_study_data/replicates_output -resume -profile ophelia
+nextflow hash-cgMLST.nf --seqlist example_data/example_input.csv --outputPath comparison_study_data/example_output -resume -profile ophelia
 ```
+
+This will download 2 example pairs of fastq files from EBI and process these through the pipeline. Please see `example_data/example_input.csv` for an example of an input file. The file type column should be set to ebi to download from EBI and the file_name column should be a sample or run identifier. 
+
+Using the `example_six_hospitals.csv` file as an input would allow you to run hash-cgMLST on the 973 samples used in the study describing hash-cgMLST.
+
+## Comparison scripts
+To run a comparison for hash-cgMLST profiles after the nextflow pipeline above is complete use the `bin/compareProfiles.py` script:
+```
+bin/compareProfiles.py -i comparison_study_data/example_output -o  comparison_study_data/example_compare.txt
+```
+
+The `bin/compareProfilesExclude.py` script ignores the 26 genes likely prone to mis-assembly.
+
+
+## Limitations
+###File size
+Each downloaded set of gzipped fastq files will be stored in the working directory, as will a pair of gzipped cleaned fastq files. You will need to periodically delete your working directory to prevent it from growing too large for very large projects.
