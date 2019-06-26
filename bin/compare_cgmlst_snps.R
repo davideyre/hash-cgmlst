@@ -17,16 +17,20 @@ replicates$id2 = substring(replicates$id2, 1, 8)
 
 #read in read qc data
 read.data = read.table("replicates_reads_summary.txt", header = T, stringsAsFactors = F) %>% as_tibble()
+read.data$id = substring(read.data$id, 0, 8)
 rd.1 = read.data %>% select(id1="id", cov.1 = "coverage")
 rd.2 = read.data %>% select(id2="id", cov.2 = "coverage")
 
 #read in kraken2 data
 spp = read.table("replicates_kraken_summary.txt", header=T, stringsAsFactors = F, sep="\t") %>% as_tibble()
+spp$id = substring(spp$id, 0, 8)
+spp$cdiff[which(spp$cdiff>1)]=1
 spp.1 = spp %>% select(id1="id", cdiff.1="cdiff")
 spp.2 = spp %>% select(id2="id", cdiff.2="cdiff")
 
 # read in read length data
 rl = read.table("replicates_read_length_summary.txt", header = T, stringsAsFactors = F, sep="\t") %>% as_tibble()
+rl$id = substring(rl$id, 0, 8)
 rl.1 = rl %>% select(id1="id", max_length.1="max_length")
 rl.2 = rl %>% select(id2="id", max_length.2="max_length")
 
@@ -67,7 +71,7 @@ print(missing)
 
 #read in assembly stats
 assembly.stats = read.table("assembly_stats.txt", stringsAsFactors = F, header=T) %>% as_tibble()
-assembly.stats$id = unlist(lapply(assembly.stats$filename, function(x) {substring(unlist(strsplit(x, "/"))[11], 1, 8)}))
+assembly.stats$id = unlist(lapply(assembly.stats$filename, function(x) {substring(unlist(strsplit(x, "/"))[7], 1, 8)}))
 stats.1 = assembly.stats %>% select(c(id1 = "id", gc.1="gc_avg", contig_bp.1 = "contig_bp", n50.1 = "ctg_N50", contigs.1="n_contigs"))
 stats.2 = assembly.stats %>% select(c(id2 = "id", gc.2="gc_avg", contig_bp.2 = "contig_bp", n50.2 = "ctg_N50", contigs.2="n_contigs"))
 
@@ -120,9 +124,16 @@ result.filtered$rl.min[which(result.filtered$rl.min==108)] = 100
 
 
 
+write.csv(result.filtered, "results_filtered.csv", row.names = F )
 
 
-
+## get genes with most differences
+g = read.table("genes_with_differences.txt", header=T, stringsAsFactors = F, sep="\t") %>% as_tibble()
+gs = g %>% select(c("sample", "gene")) %>% distinct()
+gsp = g %>% select(c("sample", "gene", "gene_length", "positions")) %>% distinct()
+gene_count = gs %>% group_by(gene) %>% summarise(unique_samples = n())
+gsp_n = inner_join(gsp, gene_count) %>% arrange(desc(unique_samples), gene)
+write.csv(gsp_n, "gene_differences_summary.csv")
 
 ## Mapping based QC metrics - omit as don't add much
 
@@ -149,8 +160,12 @@ ggplot(result.filtered, aes(x=as.numeric(cov.min), y=as.numeric(acgt.min))) +
 #### FIGURES ####
 setwd("/Users/davideyre/Drive/academic/infrastructure/cgmlst_archive/manuscript/figures")
 
+#get samples with same pool identifier
+result.filtered$pool = factor(ifelse(1:nrow(result.filtered) %in% grep('_p', result.filtered$samplename),1,0), 
+                              label=c("Same isolate", "Same DNA pool"))
+
 ### FIGURE 1 - distributions of differences and SNPs
-col = tableau_color_pal('Tableau 10')(1)
+col = tableau_color_pal('Tableau 10')(10)[c(4,1)]
 
 # group differences
 result.filtered$diff_cut = cut(result.filtered$differences, 
@@ -160,21 +175,30 @@ result.filtered$snp_cut = cut(result.filtered$pw_snps,
                               breaks=c(-Inf, 0, 1, 2, 3, 4, 5, 9, 14, 19, Inf), 
                               labels=c("0", "1", "2", "3", "4", "5", "6-9", "10-14", "15-19", "20+"))
 
-p1a = ggplot(result.filtered, aes(x=diff_cut)) +
-  geom_bar(fill=col) +
-  labs(y="Frequency", x="cgMLST gene differences\nbetween replicate sequences") +
+p1a = ggplot(result.filtered, aes(x=diff_cut, fill=pool)) +
+  geom_bar() +
+  scale_fill_manual(values=col) +
+  labs(y="Frequency", x="cgMLST gene differences\nbetween replicate sequences",
+       fill="DNA sequenced") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  ylim(0,250)
+  ylim(0,300) +
+  theme(legend.position=c(0.77,0.84)) 
 
-p1b = ggplot(result.filtered, aes(x=snp_cut)) +
-  geom_bar(fill=col) + scale_fill_discrete(drop=FALSE) + scale_x_discrete(drop=FALSE) +
-  labs(y="Frequency", x="SNP differences\nbetween replicate sequences") +
+
+p1b = ggplot(result.filtered, aes(x=snp_cut, fill=pool)) +
+  geom_bar() + 
+  scale_fill_manual(values=col, drop=F) +
+  scale_x_discrete(drop=FALSE) +
+  labs(y="Frequency", x="SNP differences\nbetween replicate sequences",
+       fill="DNA sequenced") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  ylim(0,250)
+  ylim(0,300) +
+  theme(legend.position=c(0.77,0.84)) 
 
 p1 = grid.arrange(p1a, p1b, ncol = 2, nrow = 1)
 
 ggsave("figure1.pdf", p1, width = 20, height = 10, units="cm")
+
 
 ### FIGURE 2 - relationship between cgMLST gene differences and coverage and read length
 col = tableau_color_pal('Tableau 10')(10)[c(10,1,2)]
@@ -205,9 +229,7 @@ ggsave("figure2.pdf", p2, width = 17, height = 10, units="cm")
 ### FIGURE 3 - relationship between cgMLST gene differences and de novo assembly metrics and kraken2 classification
 col = tableau_color_pal('Tableau 10')(2)
 
-#get samples with same pool identifier
-result.filtered$pool = factor(ifelse(1:nrow(result.filtered) %in% grep('_p', result.filtered$samplename),1,0), 
-                              label=c("Same isolate", "Same DNA pool"))
+
 
 #assembly size and differences
 p3a = ggplot(result.filtered, aes(x=contig_bp.max/med.bp*100, y=differences, color=pool)) +
@@ -215,18 +237,19 @@ p3a = ggplot(result.filtered, aes(x=contig_bp.max/med.bp*100, y=differences, col
   scale_color_manual(values = col) +
   theme(legend.position="bottom") +
   labs(y="cgMLST gene differences\nbetween replicate sequence pairs", 
-       x=paste("Maximum percentage deviation from\noverall median assemby size in sequence pair", sep=""),
+       x=paste("Maximum absolute percentage deviation from\noverall median assemby size in sequence pair", sep=""),
        color="Isolate DNA")
 
 kruskal.test(contig_bp.max ~ differences, data=result.filtered)
 cor.test(x=result.filtered$contig_bp.max, y=result.filtered$differences, method='spearman')
-
+result.filtered$contig_mean = (result.filtered$contig_bp.1 + result.filtered$contig_bp.2)/2
+cor.test(x=result.filtered$contig_mean, y=result.filtered$differences, method='spearman')
 p3b = ggplot(result.filtered, aes(x=as.numeric(n50.max), y=differences, color=pool)) +
   geom_jitter() +
   scale_color_manual(values = col) +
   theme(legend.position="bottom") +
   labs(y="cgMLST gene differences\nbetween replicate sequence pairs", 
-       x="Maximum N50\nin sequence pair",
+       x="Maximum L50\nin sequence pair",
        color="Isolate DNA")
 kruskal.test(n50.max ~ differences, data=result.filtered)
 cor.test(x=result.filtered$n50.max, y=result.filtered$differences, method='spearman')
@@ -255,7 +278,7 @@ p3d = ggplot(result.filtered, aes(x=as.numeric(cdiff.min), y=differences, color=
   labs(y="cgMLST gene differences\nbetween replicate sequence pairs", 
        x="Minimum proportion of sequenced reads\nclassified as C. difficile in sequence pair",
        color="Isolate DNA") +
-  xlim(0.7, 1)
+  xlim(0.85, 1)
 kruskal.test(cdiff.min ~ differences, data=result.filtered)
 cor.test(x=result.filtered$cdiff.min, y=result.filtered$differences, method='spearman')
 #!! remember to add to legned have removed 2 points !!
@@ -295,6 +318,7 @@ mean(result.filtered$pw_snps)
 
 #subset from same pool
 result.subset = result.filtered[grep('_p', result.filtered$samplename),]
+nrow(result.subset)
 table(result.subset$differences)
 mean(result.subset$differences)
 1/mean(result.subset$differences)
