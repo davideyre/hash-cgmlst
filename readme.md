@@ -67,5 +67,5 @@ The `bin/compareProfilesExclude.py` script ignores the 26 genes likely prone to 
 
 
 ## Limitations
-###File size
+### File size
 Each downloaded set of gzipped fastq files will be stored in the working directory, as will a pair of gzipped cleaned fastq files. You will need to periodically delete your working directory to prevent it from growing too large for very large projects.
