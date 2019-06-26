@@ -68,7 +68,7 @@ process makeFastQ {
 	input:
 		set file_name, file_type, file("*") from reads_ch
 	output:
-		set file_name, file("in.1.fq"), file("in.2.fq") into fq_ch
+		set file_name, file("in.1.fq.gz"), file("in.2.fq.gz") into fq_ch
 	tag "$file_name"
 	
 	script:
