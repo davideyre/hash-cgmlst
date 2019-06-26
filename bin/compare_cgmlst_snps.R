@@ -69,6 +69,16 @@ missing = id.list[which(!(id.list %in% cgmlst.check))]
 print("Misisng cgMLST data:")
 print(missing)
 
+
+#read in cgmlst with excluded sites
+#read in replicate list with excluded genes
+cgmlst.exclude = read.table("replicates_compare_exclude.txt", sep="\t", header=T, stringsAsFactors = F)  %>% as_tibble()
+cgmlst.exclude$id1 = substring(cgmlst.exclude$id1, 1, 8)
+cgmlst.exclude$id2 = substring(cgmlst.exclude$id2, 1, 8)
+colnames(cgmlst.exclude) = c("id1", "id2", "exclude_loci_compared", "exclude_differences", "exclude_dist")
+#duplicate to enable matching based on reversed id1 and id2
+cgmlst.exclude = rbind(cgmlst.exclude, setNames(cgmlst.exclude, c("id2", "id1", "exclude_loci_compared", "exclude_differences", "exclude_dist")))
+
 #read in assembly stats
 assembly.stats = read.table("assembly_stats.txt", stringsAsFactors = F, header=T) %>% as_tibble()
 assembly.stats$id = unlist(lapply(assembly.stats$filename, function(x) {substring(unlist(strsplit(x, "/"))[7], 1, 8)}))
@@ -80,6 +90,7 @@ stats.2 = assembly.stats %>% select(c(id2 = "id", gc.2="gc_avg", contig_bp.2 = "
 #result = inner_join(replicates, merge.dist, by=c("id1", "id2"))
 result = left_join(replicates, snps, by=c("id1", "id2"))
 result = left_join(result, cgmlst, by=c("id1", "id2"))
+result = left_join(result, cgmlst.exclude, by=c("id1", "id2"))
 #add pctACGT stats
 result = left_join(result, acgt.1, by=c("id1"))
 result = left_join(result, acgt.2, by=c("id2"))
@@ -171,6 +182,9 @@ col = tableau_color_pal('Tableau 10')(10)[c(4,1)]
 result.filtered$diff_cut = cut(result.filtered$differences, 
                                breaks=c(-Inf, 0, 1, 2, 3, 4, 5, 9, 14, 19, Inf), 
                                labels=c("0", "1", "2", "3", "4", "5", "6-9", "10-14", "15-19", "20+"))
+result.filtered$diff_cut_exclude = cut(result.filtered$exclude_differences, 
+                               breaks=c(-Inf, 0, 1, 2, 3, 4, 5, 9, 14, 19, Inf), 
+                               labels=c("0", "1", "2", "3", "4", "5", "6-9", "10-14", "15-19", "20+"))
 result.filtered$snp_cut = cut(result.filtered$pw_snps, 
                               breaks=c(-Inf, 0, 1, 2, 3, 4, 5, 9, 14, 19, Inf), 
                               labels=c("0", "1", "2", "3", "4", "5", "6-9", "10-14", "15-19", "20+"))
@@ -198,6 +212,37 @@ p1b = ggplot(result.filtered, aes(x=snp_cut, fill=pool)) +
 p1 = grid.arrange(p1a, p1b, ncol = 2, nrow = 1)
 
 ggsave("figure1.pdf", p1, width = 20, height = 10, units="cm")
+
+
+p1as = ggplot(result.filtered, aes(x=diff_cut, fill=pool)) +
+  geom_bar() +
+  scale_fill_manual(values=col) +
+  labs(y="Frequency", x="cgMLST gene differences\nbetween replicate sequences\n",
+       fill="DNA sequenced") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  ylim(0,250) +
+theme(legend.position=c(0.77,0.84)) 
+
+p1c = ggplot(result.filtered, aes(x=diff_cut_exclude, fill=pool)) +
+  geom_bar() +
+  scale_fill_manual(values=col, drop=FALSE) +
+  scale_x_discrete(drop=FALSE) +
+  labs(y="Frequency", x="cgMLST gene differences\nbetween replicate sequences\nExcluding 26 potentially mis-assembled genes",
+       fill="DNA sequenced") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  ylim(0,250) +
+  theme(legend.position=c(0.77,0.84)) 
+
+ps1 = grid.arrange(p1as, p1c, ncol = 2, nrow = 1)
+ggsave("figureS1.pdf", ps1, width = 20, height = 12, units="cm")
+
+#explore numbers of gene differences after filtering out potentially mis-assembled genes
+table(result.filtered$diff_cut)
+table(result.filtered$diff_cut_exclude)
+length(which(result.filtered$differences>2))
+length(which(result.filtered$exclude_differences>2))
+length(which(result.filtered$differences>2 & result.filtered$pool=="Same DNA pool"))
+length(which(result.filtered$exclude_differences>2 & result.filtered$pool=="Same DNA pool"))
 
 
 ### FIGURE 2 - relationship between cgMLST gene differences and coverage and read length
