@@ -199,7 +199,7 @@ process spades {
 	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}_*"
     
 	"""
-	spades.py --careful -o spades -1 clean.1.fq.gz -2 clean.2.fq.gz \
+	spades.py --careful --only-assembler -o spades -1 clean.1.fq.gz -2 clean.2.fq.gz \
 		-t ${task.cpus} -m ${task.memory.toGiga()}
 	cp spades/contigs.fasta ${file_name}_spades_contigs.fa
 	cp spades/assembly_graph.fastg ${file_name}_spades_assembly_graph.fastg
