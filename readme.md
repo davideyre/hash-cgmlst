@@ -50,11 +50,19 @@ python makeReferenceDB.py
 ## Running hash-cgMLST
 At present the scripts are designed to be run on two specific server set-ups, each with its own profile. Updates can be made to the nextflow.config file for other set-ups. 
 
+The two profiles are:
+* cluster - an example implementation for a SGE based cluster
+* ophelia - an example for a local bare-metal server (would adapt to a stand-alone machine if the amount of memory available per core is changed)
 
+### Example input file types
+Two sources of raw read files for the workflow are supported
+* ebi - supports running workflow on files downloaded from EBI
+* local - support running on local gzipped paired fastq files
 
-### Example file locations
+(The third option bam can be ignored as it has been developed for local testing only.)
 
-Download two example files
+To set up two test files for testing the local input option, the following command or similar can be run:
+
 ```
 mkdir comparison_study_data
 cd comparison_study_data
@@ -64,20 +72,29 @@ wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR257/ERR257068/ERR257068_1.fastq.gz -O
 wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR257/ERR257068/ERR257068_2.fastq.gz -O b.2.fq.gz
 ```
 
+Examples of the csv files that specify the input files for the pipeline can be found in the `example_data` folder:
+* `example_input.csv` obtain 2 files from EBI by accession number, leave columns fq1 and fq2 empty
+* `example_input_local.csv` obtain files from local path relative to root of this repository specified in fq1 and fq2, file_name column is used a readable name for the files
+* `example_input_bam.csv` ignore
+* `example_six_hospitals.csv` re-run the analysis of samples from six hospitals used in the paper describing hash-cgMLST
+* `all_cdiff_ncbi_20190611.csv` run the analysis on all C diff in EBI/NCBI as of 6 June 2019
 
+### Example command to run workflow
 
-The two profiles are:
-* cluster - an example implementation for a SGE based cluster
-* ophelia - an example for a local bare-metal server (would adapt to a stand-alone machine if the amount of memory available per core is changed)
-
-To run the cgMLST analysis
+To run the cgMLST analysis, e.g. using files from EBI
 ```
 nextflow hash-cgMLST.nf --seqlist example_data/example_input.csv --outputPath comparison_study_data/example_output -resume -profile ophelia
 ```
 
 This will download 2 example pairs of fastq files from EBI and process these through the pipeline. Please see `example_data/example_input.csv` for an example of an input file. The file type column should be set to ebi to download from EBI and the file_name column should be a sample or run identifier. 
 
-Using the `example_six_hospitals.csv` file as an input would allow you to run hash-cgMLST on the 973 samples used in the study describing hash-cgMLST.
+Alternatively
+```
+nextflow hash-cgMLST.nf --seqlist example_data/example_input_local.csv --outputPath comparison_study_data/example_output -resume -profile ophelia
+```
+
+Runs the locally downloaded files from above.
+
 
 ## Outputs
 Outputs provided include:
