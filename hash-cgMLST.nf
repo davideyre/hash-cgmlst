@@ -63,10 +63,12 @@ process fetchReads {
 		else if (file_type=="local") {
 			f1 = file(fq1)
 			f2 = file(fq2)
+			
 			"""
-			mv $f1 in.1.fq.gz
-			mv $f2 in.2.fq.gz
+			ln -s $f1 in.1.fq.gz
+			ln -s $f2 in.2.fq.gz
 			"""
+			
 		}
 		
 }
