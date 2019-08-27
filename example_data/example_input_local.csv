@@ -1,3 +1,3 @@
-file_type,file_name,file_name2
-local,a.1.fq.gz,a.2.fq.gz
-local,b.1.fq.gz,b.2.fq.gz
+file_type,file_name,fq1,fq2
+local,test_a,comparison_study_data/a.1.fq.gz,comparison_study_data/a.2.fq.gz
+local,test_b,comparison_study_data/b.1.fq.gz,comparison_study_data/b.2.fq.gz

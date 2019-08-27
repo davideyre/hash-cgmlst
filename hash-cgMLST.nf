@@ -31,14 +31,14 @@ bbduk_adapaters = "/opt/conda/opt/bbmap-38.22-1/resources/adapters.fa" //path wi
 Channel
     .fromPath(params.seqlist)
     .splitCsv(header:true)
-    .map{ row-> tuple(row.file_type, row.sra_name, row.guid, row.fq1, row.fq2) }
+    .map{ row-> tuple(row.file_type, row.file_name, row.fq1, row.fq2) }
     .set { samples_ch }
 
 
 process fetchReads {
 	
 	input:
-		set file_type, file_name, file_name2
+		set file_type, file_name, fq1, fq2 from samples_ch
 	output:
 		set file_type, file_name, file("*") into reads_ch
 
@@ -50,20 +50,22 @@ process fetchReads {
 	script:
 		if (file_type=="bam") { 
 			"""
-			scp -P 8081 ana:/mnt/microbio/ndm-hicf/ogre/pipeline_output/${guid}/MAPPING/103e39d6-096c-46da-994d-91c5acbda565_R00000003/STD/${guid}_v3.bam in.bam || scp -P 8081 ana:/mnt/microbio/ndm-hicf/ogre/pipeline_output/${guid}/MAPPING/103e39d6-096c-46da-994d-91c5acbda565_R00000003/STD/${guid}_v2.bam in.bam
+			scp -P 8081 ana:/mnt/microbio/ndm-hicf/ogre/pipeline_output/${file_name}/MAPPING/103e39d6-096c-46da-994d-91c5acbda565_R00000003/STD/${file_name}_v3.bam in.bam || scp -P 8081 ana:/mnt/microbio/ndm-hicf/ogre/pipeline_output/${file_name}/MAPPING/103e39d6-096c-46da-994d-91c5acbda565_R00000003/STD/${file_name}_v2.bam in.bam
 			"""
 		}
 		else if (file_type=="ebi") {
 			"""
-			${baseDir}/bin/download_ebi.py -a ${sra_name} -o .
+			${baseDir}/bin/download_ebi.py -a ${file_name} -o .
 			mv *_1.fastq.gz in.1.fq.gz
 			mv *_2.fastq.gz in.2.fq.gz
 			"""
 		}
 		else if (file_type=="local") {
+			f1 = file(fq1)
+			f2 = file(fq2)
 			"""
-			ln -s $fq1 in.1.fq.gz
-			ln -s $fq2 in.2.fq.gz
+			mv $f1 in.1.fq.gz
+			mv $f2 in.2.fq.gz
 			"""
 		}
 		
@@ -72,7 +74,7 @@ process fetchReads {
 
 process makeFastQ {
 	input:
-		set file_type, guid, file("*") from reads_ch
+		set file_type, file_name, file("*") from reads_ch
 	output:
 		set file_name, file("in.1.fq.gz"), file("in.2.fq.gz") into fq_ch
 	
@@ -206,7 +208,7 @@ process spades {
 	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}_*"
     
 	"""
-	spades.py --careful --only-assembler -o spades -1 clean.1.fq.gz -2 clean.2.fq.gz \
+	spades.py --careful -o spades -1 clean.1.fq.gz -2 clean.2.fq.gz \
 		-t ${task.cpus} -m ${task.memory.toGiga()}
 	cp spades/contigs.fasta ${file_name}_spades_contigs.fa
 	cp spades/assembly_graph.fastg ${file_name}_spades_assembly_graph.fastg

@@ -1,3 +1,3 @@
-file_type,file_name,file_name2
-bam,003381ae-7ef0-431d-b585-c4c3f02a8399,
-bam,00578ccc-45ab-4457-86de-b5ee9f58f71d,
+file_type,file_name,fq1,fq2
+bam,003381ae-7ef0-431d-b585-c4c3f02a8399,,
+bam,00578ccc-45ab-4457-86de-b5ee9f58f71d,,
