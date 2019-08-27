@@ -50,6 +50,22 @@ python makeReferenceDB.py
 ## Running hash-cgMLST
 At present the scripts are designed to be run on two specific server set-ups, each with its own profile. Updates can be made to the nextflow.config file for other set-ups. 
 
+
+
+### Example file locations
+
+Download two example files
+```
+mkdir comparison_study_data
+cd comparison_study_data
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR257/ERR257052/ERR257052_1.fastq.gz -O a.1.fq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR257/ERR257052/ERR257052_2.fastq.gz -O a.2.fq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR257/ERR257068/ERR257068_1.fastq.gz -O b.1.fq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR257/ERR257068/ERR257068_2.fastq.gz -O b.2.fq.gz
+```
+
+
+
 The two profiles are:
 * cluster - an example implementation for a SGE based cluster
 * ophelia - an example for a local bare-metal server (would adapt to a stand-alone machine if the amount of memory available per core is changed)

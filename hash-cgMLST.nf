@@ -38,19 +38,22 @@ Channel
 process fetchReads {
 	
 	input:
-		set file_type, sra_name, guid, fq1, fq2 from samples_ch
+		set file_type, file_name, file_name2
 	output:
 		set file_type, file_name, file("*") into reads_ch
+
+	
+	executor = 'local'
+	tag "$file_name"
+
 	
 	script:
 		if (file_type=="bam") { 
-			file_name = guid
 			"""
 			scp -P 8081 ana:/mnt/microbio/ndm-hicf/ogre/pipeline_output/${guid}/MAPPING/103e39d6-096c-46da-994d-91c5acbda565_R00000003/STD/${guid}_v3.bam in.bam || scp -P 8081 ana:/mnt/microbio/ndm-hicf/ogre/pipeline_output/${guid}/MAPPING/103e39d6-096c-46da-994d-91c5acbda565_R00000003/STD/${guid}_v2.bam in.bam
 			"""
 		}
 		else if (file_type=="ebi") {
-			file_name = sra_name
 			"""
 			${baseDir}/bin/download_ebi.py -a ${sra_name} -o .
 			mv *_1.fastq.gz in.1.fq.gz
@@ -58,17 +61,12 @@ process fetchReads {
 			"""
 		}
 		else if (file_type=="local") {
-			file_name = fq1.baseName()
 			"""
 			ln -s $fq1 in.1.fq.gz
 			ln -s $fq2 in.2.fq.gz
 			"""
 		}
-	tag "$file_name"
-	
-	executor = 'local'
-
-
+		
 }
 
 
