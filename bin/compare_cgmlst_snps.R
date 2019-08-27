@@ -211,7 +211,7 @@ p1b = ggplot(result.filtered, aes(x=snp_cut, fill=pool)) +
 
 p1 = grid.arrange(p1a, p1b, ncol = 2, nrow = 1)
 
-ggsave("figure1.pdf", p1, width = 20, height = 10, units="cm")
+ggsave("figure1.pdf", p1, width = 20, height = 10, units="cm", useDingbats=FALSE)
 
 
 p1as = ggplot(result.filtered, aes(x=diff_cut, fill=pool)) +
@@ -234,7 +234,7 @@ p1c = ggplot(result.filtered, aes(x=diff_cut_exclude, fill=pool)) +
   theme(legend.position=c(0.77,0.84)) 
 
 ps1 = grid.arrange(p1as, p1c, ncol = 2, nrow = 1)
-ggsave("figureS1.pdf", ps1, width = 20, height = 12, units="cm")
+ggsave("figureS1.pdf", ps1, width = 20, height = 12, units="cm", useDingbats=FALSE)
 
 #explore numbers of gene differences after filtering out potentially mis-assembled genes
 table(result.filtered$diff_cut)
@@ -269,7 +269,7 @@ result.filtered$diff.above2 = ifelse(result.filtered$differences>2,1,0)
 result.filtered %>% group_by(rl.min.gp) %>% summarise(n = length(differences), above2=sum(diff.above2))
 
 
-ggsave("figure2.pdf", p2, width = 17, height = 10, units="cm")
+ggsave("figure2.pdf", p2, width = 17, height = 10, units="cm", useDingbats=FALSE)
 
 ### FIGURE 3 - relationship between cgMLST gene differences and de novo assembly metrics and kraken2 classification
 col = tableau_color_pal('Tableau 10')(2)
@@ -329,7 +329,7 @@ cor.test(x=result.filtered$cdiff.min, y=result.filtered$differences, method='spe
 #!! remember to add to legned have removed 2 points !!
 
 p = grid.arrange(p3a, p3b, p3c, p3d, ncol = 2, nrow = 2)
-ggsave("figure3.pdf", p, width = 20, height = 20, units="cm")
+ggsave("figure3.pdf", p, width = 20, height = 20, units="cm", useDingbats=FALSE)
 
 
 
