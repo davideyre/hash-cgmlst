@@ -6,6 +6,9 @@ A tool for core-genome MLST typing for bacterial data. This has been initially d
 * Java version 8 or later (required for nextflow)
 * Nextflow - https://www.nextflow.io
 
+## System requirements
+This workflow will run on systems that support the dependencies above. It has been tested on MacOS, Ubuntu and CentOS. Minimal system resources are required to generate hash-cgMLST profiles alone, however generating assemblies using SPAdes is the main resource constraint for the whole pipeline, the amount of memory to use per core can be set in the nextflow.config file, e.g. 8 Gb.
+
 ## Installation
 
 ### Singularity
@@ -113,6 +116,22 @@ bin/compareProfiles.py -i comparison_study_data/example_output -o  comparison_st
 ```
 
 The `bin/compareProfilesExclude.py` script ignores the 26 genes likely prone to mis-assembly.
+
+## Bring your own assemblies
+If you wish to simply call the hash-cgMLST of an existing assembly this can be done by running:
+
+```
+bin/getCoreGenomeMLST.py -f assembly_contigs.fa \
+	-n contig_name \
+	-s ridom_scheme/files \
+	-d ridom_scheme/ridom_scheme.fasta \
+	-o output_file_prefix \
+	-b blastn_path 
+```
+
+Here `assembly_contigs.fa` is the input contigs file, `contig_name` is the name to use for the assembly in the output json files, `ridom_scheme/files` is the path to files for the ridom scheme and `ridom_scheme/ridom_scheme.fasta` a fasta file of each gene in the ridom scheme, `output_file_prefix` needs to be set as does the path to the blastn binary `blastn_path`.
+
+The resulting summary files can be compared as above.
 
 
 ## Limitations
