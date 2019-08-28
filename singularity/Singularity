@@ -28,7 +28,7 @@ From: ubuntu:18.04
 				  kraken2=2.0.8_beta \
 				  pandas=0.24.2 \
 				  mlst=2.16.1 \
-				  skesa=2.30
+				  skesa=2.3.0
     
     mkdir /data
     
