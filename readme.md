@@ -131,6 +131,8 @@ bin/getCoreGenomeMLST.py -f assembly_contigs.fa \
 
 Here `assembly_contigs.fa` is the input contigs file, `contig_name` is the name to use for the assembly in the output json files, `ridom_scheme/files` is the path to files for the ridom scheme and `ridom_scheme/ridom_scheme.fasta` a fasta file of each gene in the ridom scheme, `output_file_prefix` needs to be set as does the path to the blastn binary `blastn_path`.
 
+If running outside of the Singularity container then a local installation of blastn, python 3 and biopython is required.
+
 The resulting summary files can be compared as above.
 
 
