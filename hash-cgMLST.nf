@@ -278,7 +278,8 @@ if (runSkesa==1) {
 	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}_*"
 	
 	"""
-	skesa --fastq clean.1.fq.gz,clean.2.fq.gz --cores 1 --memory ${task.memory.toGiga()} > ${file_name}_skesa_contigs.fa
+	skesa --fastq clean.1.fq.gz,clean.2.fq.gz \
+	      --cores ${task.cpus} --memory ${task.memory.toGiga()} > ${file_name}_skesa_contigs.fa
 	"""
 	
 	}
@@ -290,7 +291,7 @@ if (runSkesa==1) {
 		file "${file_name}_skesa_cgmlst.*"
 	
 	tag "$file_name"
-	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}_cgmlst.*"
+	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}_skesa_cgmlst.*"
 	
 	"""
 	#get stats
