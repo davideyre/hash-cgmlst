@@ -117,6 +117,8 @@ bin/compareProfiles.py -i comparison_study_data/example_output -o  comparison_st
 
 The `bin/compareProfilesExclude.py` script ignores the 26 genes likely prone to mis-assembly.
 
+These scripts search for json files with the folder specified and any immediate sub-folders. Please ensure that the only json files present are those created by this workflow.
+
 ## Bring your own assemblies
 If you wish to simply call the hash-cgMLST of an existing assembly this can be done by running:
 
