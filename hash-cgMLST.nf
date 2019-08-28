@@ -4,6 +4,7 @@
 params.seqlist = "example_input.csv"
 params.outputPath = "example_output"
 params.krakendb = "minikraken2" //location of minikrakenDB
+params.runSkesa = 1
 
 def firstFive( str ) {
     return str.substring(0,5)
@@ -22,6 +23,7 @@ log.info "\n"
 // rename input parameters
 outputPath = file(params.outputPath)
 krakendb = file(params.krakendb)
+runSkesa = params.runSkesa
 
 //location for bbduk adapter sequences
 bbduk_adapaters = "/opt/conda/opt/bbmap-38.22-1/resources/adapters.fa" //path within docker/singularity image
@@ -173,7 +175,7 @@ process bbDuk {
 }
 
 //split cleaned reads into 2 channels - for QC and assembly
-bbduk_out_ch.into { bbduk_out_ch1; bbduk_out_ch2; }
+bbduk_out_ch.into { bbduk_out_ch1; bbduk_out_ch2; bbduk_out_ch3;}
 
 
 process cleanFastQC {
@@ -259,4 +261,48 @@ process mlst {
 	"""
 	mlst --scheme cdifficile --legacy  ${file_name}_spades_contigs.fa > ${file_name}_mlst.txt
 	"""	
+}
+
+if (runSkesa==1) {
+
+	//run skesa and generate cgmlst from that too
+	process skesa {
+	input:
+		set file_name, file("clean.1.fq.gz"), file("clean.2.fq.gz") from bbduk_out_ch3
+	
+	output:
+		set file_name, file("${file_name}_skesa_contigs.fa") into skesa_out
+			
+	tag "$file_name"
+	
+	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}_*"
+	
+	"""
+	skesa --fastq clean.1.fq.gz,clean.2.fq.gz --cores 1 --memory ${task.memory.toGiga()} > ${file_name}_skesa_contigs.fa
+	"""
+	
+	}
+	
+	process cgmlst_skesa {
+	input:
+		set file_name, file("${file_name}_skesa_contigs.fa") from skesa_out
+	output:
+		file "${file_name}_skesa_cgmlst.*"
+	
+	tag "$file_name"
+	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}_cgmlst.*"
+	
+	"""
+	#get stats
+	/opt/conda/opt/bbmap-38.22-1/stats.sh in=${file_name}_skesa_contigs.fa > ${file_name}_skesa_cgmlst.stats
+	/opt/conda/opt/bbmap-38.22-1/statswrapper.sh in=${file_name}_skesa_contigs.fa > ${file_name}_skesa_cgmlst.statlog
+	#run hash cgmlst
+	${baseDir}/bin/getCoreGenomeMLST.py -f ${file_name}_skesa_contigs.fa \
+		-n ${file_name} \
+		-s ${baseDir}/ridom_scheme/files \
+		-d ${baseDir}/ridom_scheme/ridom_scheme.fasta \
+		-o ${file_name}_skesa \
+		-b blastn 
+	"""	
+	}
 }
