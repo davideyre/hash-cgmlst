@@ -241,10 +241,10 @@ process cgmlst {
 	/opt/conda/opt/bbmap-38.22-1/statswrapper.sh in=${file_name}_spades_contigs.fa > ${file_name}_cgmlst.statlog
 	#run hash cgmlst
 	${baseDir}/bin/getCoreGenomeMLST.py -f ${file_name}_spades_contigs.fa \
-		-n ${file_name} \
+		-n ${file_name}_spades \
 		-s ${baseDir}/ridom_scheme/files \
 		-d ${baseDir}/ridom_scheme/ridom_scheme.fasta \
-		-o ${file_name} \
+		-o ${file_name}_spades \
 		-b blastn 
 	"""	
 }
@@ -299,7 +299,7 @@ if (runSkesa==1) {
 	/opt/conda/opt/bbmap-38.22-1/statswrapper.sh in=${file_name}_skesa_contigs.fa > ${file_name}_skesa_cgmlst.statlog
 	#run hash cgmlst
 	${baseDir}/bin/getCoreGenomeMLST.py -f ${file_name}_skesa_contigs.fa \
-		-n ${file_name} \
+		-n ${file_name}_skesa \
 		-s ${baseDir}/ridom_scheme/files \
 		-d ${baseDir}/ridom_scheme/ridom_scheme.fasta \
 		-o ${file_name}_skesa \
