@@ -27,7 +27,8 @@ From: singularityhub/ubuntu
 				  bedtools=2.28.0 \
 				  kraken2=2.0.8_beta \
 				  pandas=0.24.2 \
-				  mlst=2.16.1
+				  mlst=2.16.1 \
+				  skesa=2.30
     
     mkdir /data
     
