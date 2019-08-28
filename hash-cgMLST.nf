@@ -233,12 +233,12 @@ process cgmlst {
 		file "${file_name}_cgmlst.*"
 	
 	tag "$file_name"
-	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}_cgmlst.*"
+	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}_spades_cgmlst.*"
 	
 	"""
 	#get stats
-	/opt/conda/opt/bbmap-38.22-1/stats.sh in=${file_name}_spades_contigs.fa > ${file_name}_cgmlst.stats
-	/opt/conda/opt/bbmap-38.22-1/statswrapper.sh in=${file_name}_spades_contigs.fa > ${file_name}_cgmlst.statlog
+	/opt/conda/opt/bbmap-38.22-1/stats.sh in=${file_name}_spades_contigs.fa > ${file_name}_spades_cgmlst.stats
+	/opt/conda/opt/bbmap-38.22-1/statswrapper.sh in=${file_name}_spades_contigs.fa > ${file_name}_spades_cgmlst.statlog
 	#run hash cgmlst
 	${baseDir}/bin/getCoreGenomeMLST.py -f ${file_name}_spades_contigs.fa \
 		-n ${file_name}_spades \
