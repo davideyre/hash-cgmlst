@@ -230,7 +230,7 @@ process cgmlst {
 	input:
 	 	set file_name, file("${file_name}_spades_contigs.fa") from spades_out_ch1
 	output:
-		file "${file_name}_cgmlst.*"
+		file "${file_name}_spades_cgmlst.*"
 	
 	tag "$file_name"
 	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}_spades_cgmlst.*"
