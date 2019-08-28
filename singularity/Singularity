@@ -1,5 +1,5 @@
-Bootstrap: shub
-From: singularityhub/ubuntu
+Bootstrap: docker
+From: ubuntu:18.04
 
 %labels
    AUTHOR david.eyre@bdi.ox.ac.uk
