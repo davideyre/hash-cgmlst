@@ -111,7 +111,9 @@ class CgMLST:
 			if not seqData:
 				hashDict[k] = ""
 			else:
-				hashDict[k] = hashAllele(self.matches[k])
+				seqToHash = "".join([b for b in seqData if b in 'ACGT']) #remove any "-" before hashing...
+				#    required to avoid false differences for variable placement on "-" in blast alignments
+				hashDict[k] = hashAllele(seqToHash)
 		cgmlst = {"name": self.contigsName, "file": self.contigsPath, 
 					"scheme": self.schemeDB, "alleles": hashDict}
 		with open(jsonFile, "w") as f:
