@@ -36,18 +36,18 @@ def geneDiff(id1, id2, sample, path_json1, path_json2, path_fa1, path_fa2):
 	return o
 
 
-def getDiff(infile, search_dir, outfile):
+def getDiff(infile, search_dir, outfile, assembler):
 	df = pd.read_csv(infile)
 	w = open(outfile, 'w')
 	w.write('id1\tid2\tsample\tgene\tgene_length\tpositions\n')
 	for index, row in df.iterrows():
 		id1, id2, sample = row['id1'], row['id2'], row['samplename']
-		file1_stem = [f.split('_')[0] for f in os.listdir(search_dir+'/'+id1[0:5]) if f[0:8]==id1 and f.split('_')[1]=='spades' and f.split('_')[2]=='cgmlst.json'][0]
-		file2_stem = [f.split('_')[0] for f in os.listdir(search_dir+'/'+id2[0:5]) if f[0:8]==id2 and f.split('_')[1]=='spades' and f.split('_')[2]=='cgmlst.json'][0]
-		path_json1 = search_dir+'/'+id1[0:5]+'/'+file1_stem+'_spades_cgmlst.json'
-		path_json2 = search_dir+'/'+id2[0:5]+'/'+file2_stem+'_spades_cgmlst.json'
-		path_fa1 = search_dir+'/'+id1[0:5]+'/'+file1_stem+'_spades_cgmlst.fa'
-		path_fa2 = search_dir+'/'+id2[0:5]+'/'+file2_stem+'_spades_cgmlst.fa'
+		file1_stem = [f.split('_')[0] for f in os.listdir(search_dir+'/'+id1[0:5]) if f[0:8]==id1 and f.split('_')[1]==assembler and f.split('_')[2]=='cgmlst.json'][0]
+		file2_stem = [f.split('_')[0] for f in os.listdir(search_dir+'/'+id2[0:5]) if f[0:8]==id2 and f.split('_')[1]==assembler and f.split('_')[2]=='cgmlst.json'][0]
+		path_json1 = search_dir+'/'+id1[0:5]+'/'+file1_stem+'_'+assembler+'_cgmlst.json'
+		path_json2 = search_dir+'/'+id2[0:5]+'/'+file2_stem+'_'+assembler+'_cgmlst.json'
+		path_fa1 = search_dir+'/'+id1[0:5]+'/'+file1_stem+'_'+assembler+'_cgmlst.fa'
+		path_fa2 = search_dir+'/'+id2[0:5]+'/'+file2_stem+'_'+assembler+'_cgmlst.fa'
 		print (path_json1)
 		print (path_json2)
 		print (path_fa1)
@@ -59,8 +59,11 @@ def getDiff(infile, search_dir, outfile):
 
 infile = '/home/davideyre/hash-cgmlst/comparison_study_data/replicates_output/results_filtered.csv'
 search_dir = '/home/davideyre/hash-cgmlst/comparison_study_data/replicates_output'
-outfile = '/home/davideyre/hash-cgmlst/comparison_study_data/replicates_output/genes_with_differences.txt'
-getDiff(infile, search_dir, outfile)
+outfile = '/home/davideyre/hash-cgmlst/comparison_study_data/replicates_output/genes_with_differences_spades.txt'
+getDiff(infile, search_dir, outfile, 'spades')
+
+outfile = '/home/davideyre/hash-cgmlst/comparison_study_data/replicates_output/genes_with_differences_skesa.txt'
+getDiff(infile, search_dir, outfile, 'skesa')
 
 # 
 # def getDiffSix(infile, search_dir, outfile):
