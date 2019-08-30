@@ -8,6 +8,7 @@ def compareHash(input_folder, compareOut):
 	#list of bad genes to exclude
 	excludeList = ['CD630_17960', 'CD630_23930', 'CD630_25030', 'CD630_08260', 'CD630_09010', 'CD630_12750', 'CD630_22750', 'CD630_27680', 'CD630_11800', 'CD630_12080', 'CD630_15400', 'CD630_16950', 'CD630_20730', 'CD630_32240', 'CD630_34030']
 	fileList = glob.glob('%s/*/*.json'%input_folder)
+	fileList = fileList + glob.glob('%s/*.json'%input_folder)
 	w = open(compareOut, 'w')
 	w.write('id1\tid2\tloci_compared\tdifferences\tdist\n')
 	jsonList = []
