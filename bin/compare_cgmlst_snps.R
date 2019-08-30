@@ -72,7 +72,7 @@ print(missing)
 
 #read in cgmlst with excluded sites
 #read in replicate list with excluded genes
-cgmlst.exclude = read.table("replicates_compare_exclude.txt", sep="\t", header=T, stringsAsFactors = F)  %>% as_tibble()
+cgmlst.exclude = read.table("replicates_compare_exclude_genes.txt", sep="\t", header=T, stringsAsFactors = F)  %>% as_tibble()
 cgmlst.exclude$id1 = substring(cgmlst.exclude$id1, 1, 8)
 cgmlst.exclude$id2 = substring(cgmlst.exclude$id2, 1, 8)
 colnames(cgmlst.exclude) = c("id1", "id2", "exclude_loci_compared", "exclude_differences", "exclude_dist")
@@ -80,7 +80,7 @@ colnames(cgmlst.exclude) = c("id1", "id2", "exclude_loci_compared", "exclude_dif
 cgmlst.exclude = rbind(cgmlst.exclude, setNames(cgmlst.exclude, c("id2", "id1", "exclude_loci_compared", "exclude_differences", "exclude_dist")))
 
 #read in assembly stats
-assembly.stats = read.table("assembly_stats.txt", stringsAsFactors = F, header=T) %>% as_tibble()
+assembly.stats = read.table("replicates_assembly_stats.txt", stringsAsFactors = F, header=T) %>% as_tibble()
 assembly.stats$id = unlist(lapply(assembly.stats$filename, function(x) {substring(unlist(strsplit(x, "/"))[7], 1, 8)}))
 stats.1 = assembly.stats %>% select(c(id1 = "id", gc.1="gc_avg", contig_bp.1 = "contig_bp", n50.1 = "ctg_N50", contigs.1="n_contigs"))
 stats.2 = assembly.stats %>% select(c(id2 = "id", gc.2="gc_avg", contig_bp.2 = "contig_bp", n50.2 = "ctg_N50", contigs.2="n_contigs"))
@@ -91,6 +91,8 @@ stats.2 = assembly.stats %>% select(c(id2 = "id", gc.2="gc_avg", contig_bp.2 = "
 result = left_join(replicates, snps, by=c("id1", "id2"))
 result = left_join(result, cgmlst, by=c("id1", "id2"))
 result = left_join(result, cgmlst.exclude, by=c("id1", "id2"))
+
+
 #add pctACGT stats
 result = left_join(result, acgt.1, by=c("id1"))
 result = left_join(result, acgt.2, by=c("id2"))
@@ -146,27 +148,6 @@ gene_count = gs %>% group_by(gene) %>% summarise(unique_samples = n())
 gsp_n = inner_join(gsp, gene_count) %>% arrange(desc(unique_samples), gene)
 write.csv(gsp_n, "gene_differences_summary.csv")
 
-## Mapping based QC metrics - omit as don't add much
-
-#OMIT (mapping based) - relationship between pctACGT and differences
-ggplot(result.filtered, aes(x=as.numeric(acgt.min), y=differences, color=cov.min)) +
-  geom_point()
-kruskal.test(acgt.min ~ differences, data=result.filtered)
-
-# OMIT - no real relationship between coverage and pct called
-ggplot(result.filtered, aes(x=as.numeric(cov.min), y=as.numeric(acgt.min))) +
-  geom_point()
-
-
-
-
-
-
-
-
-
-
-
 
 #### FIGURES ####
 setwd("/Users/davideyre/Drive/academic/infrastructure/cgmlst_archive/manuscript/figures")
@@ -180,14 +161,14 @@ col = tableau_color_pal('Tableau 10')(10)[c(4,1)]
 
 # group differences
 result.filtered$diff_cut = cut(result.filtered$differences, 
-                               breaks=c(-Inf, 0, 1, 2, 3, 4, 5, 9, 14, 19, Inf), 
-                               labels=c("0", "1", "2", "3", "4", "5", "6-9", "10-14", "15-19", "20+"))
+                               breaks=c(-Inf, 0, 1, 2, 3, 4, 5, 9, Inf), 
+                               labels=c("0", "1", "2", "3", "4", "5", "6-9", "10+"))
 result.filtered$diff_cut_exclude = cut(result.filtered$exclude_differences, 
-                               breaks=c(-Inf, 0, 1, 2, 3, 4, 5, 9, 14, 19, Inf), 
-                               labels=c("0", "1", "2", "3", "4", "5", "6-9", "10-14", "15-19", "20+"))
+                               breaks=c(-Inf, 0, 1, 2, 3, 4, 5, 9, Inf), 
+                               labels=c("0", "1", "2", "3", "4", "5", "6-9", "10+"))
 result.filtered$snp_cut = cut(result.filtered$pw_snps, 
-                              breaks=c(-Inf, 0, 1, 2, 3, 4, 5, 9, 14, 19, Inf), 
-                              labels=c("0", "1", "2", "3", "4", "5", "6-9", "10-14", "15-19", "20+"))
+                              breaks=c(-Inf, 0, 1, 2, 3, 4, 5, 9, Inf), 
+                              labels=c("0", "1", "2", "3", "4", "5", "6-9", "10+"))
 
 p1a = ggplot(result.filtered, aes(x=diff_cut, fill=pool)) +
   geom_bar() +
@@ -213,21 +194,20 @@ p1 = grid.arrange(p1a, p1b, ncol = 2, nrow = 1)
 
 ggsave("figure1.pdf", p1, width = 20, height = 10, units="cm", useDingbats=FALSE)
 
-
 p1as = ggplot(result.filtered, aes(x=diff_cut, fill=pool)) +
   geom_bar() +
   scale_fill_manual(values=col) +
-  labs(y="Frequency", x="cgMLST gene differences\nbetween replicate sequences\n",
+  labs(y="Frequency", x="cgMLST gene differences\nbetween\nreplicate sequences",
        fill="DNA sequenced") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  ylim(0,250) +
-theme(legend.position=c(0.77,0.84)) 
+  ylim(0,300) +
+  theme(legend.position=c(0.77,0.84)) 
 
 p1c = ggplot(result.filtered, aes(x=diff_cut_exclude, fill=pool)) +
   geom_bar() +
   scale_fill_manual(values=col, drop=FALSE) +
   scale_x_discrete(drop=FALSE) +
-  labs(y="Frequency", x="cgMLST gene differences\nbetween replicate sequences\nExcluding 26 potentially mis-assembled genes",
+  labs(y="Frequency", x="cgMLST gene differences\nbetween replicate sequences\nExcluding 15 potentially mis-assembled genes",
        fill="DNA sequenced") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   ylim(0,250) +
