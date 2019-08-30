@@ -4,7 +4,8 @@
 params.seqlist = "example_input.csv"
 params.outputPath = "example_output"
 params.krakendb = "minikraken2" //location of minikrakenDB
-params.runSkesa = 1
+params.runSkesa = 0
+params.aoSpades = 1
 
 def firstFive( str ) {
     return str.substring(0,5)
@@ -24,6 +25,12 @@ log.info "\n"
 outputPath = file(params.outputPath)
 krakendb = file(params.krakendb)
 runSkesa = params.runSkesa
+aoSpades = params.aoSpades
+
+spadesReadCorrection = ""
+if (aoSpades==1) {
+	spadesReadCorrection = "--only-assembler"
+}
 
 //location for bbduk adapter sequences
 bbduk_adapaters = "/opt/conda/opt/bbmap-38.22-1/resources/adapters.fa" //path within docker/singularity image
@@ -212,7 +219,7 @@ process spades {
 	publishDir "${outputPath}/${firstFive(file_name)}", mode: 'copy', pattern: "${file_name}_*"
     
 	"""
-	spades.py --careful -o spades -1 clean.1.fq.gz -2 clean.2.fq.gz \
+	spades.py --careful ${spadesReadCorrection} -o spades -1 clean.1.fq.gz -2 clean.2.fq.gz \
 		-t ${task.cpus} -m ${task.memory.toGiga()}
 	cp spades/contigs.fasta ${file_name}_spades_contigs.fa
 	cp spades/assembly_graph.fastg ${file_name}_spades_assembly_graph.fastg
