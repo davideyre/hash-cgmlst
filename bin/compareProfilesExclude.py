@@ -6,7 +6,7 @@ from optparse import OptionParser
 
 def compareHash(input_folder, compareOut):
 	#list of bad genes to exclude
-	excludeList = ['CD630_16790', 'CD630_14380', 'CD630_17540', 'CD630_24440', 'CD630_13240', 'CD630_16000', 'CD630_32680', 'CD630_20520', 'CD630_20910', 'CD630_25780', 'CD630_10480', 'CD630_14730', 'CD630_16040', 'CD630_16410', 'CD630_17960', 'CD630_23930', 'CD630_25030', 'CD630_05430', 'CD630_07840', 'CD630_08260', 'CD630_09010', 'CD630_12750', 'CD630_21960', 'CD630_22750', 'CD630_27680', 'CD630_34320']
+	excludeList = ['CD630_17960', 'CD630_23930', 'CD630_25030', 'CD630_08260', 'CD630_09010', 'CD630_12750', 'CD630_22750', 'CD630_27680', 'CD630_11800', 'CD630_12080', 'CD630_15400', 'CD630_16950', 'CD630_20730', 'CD630_32240', 'CD630_34030']
 	fileList = glob.glob('%s/*/*.json'%input_folder)
 	w = open(compareOut, 'w')
 	w.write('id1\tid2\tloci_compared\tdifferences\tdist\n')
