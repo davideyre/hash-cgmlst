@@ -12,28 +12,28 @@ from Bio import SeqIO
 def geneDiff(id1, id2, sample, path_json1, path_json2, path_fa1, path_fa2):
 	o = []
 	
-#read in json
-with open(path_json1, 'r') as fp:
-	j1 = json.load(fp)
-with open(path_json2, 'r') as fp:
-	j2 = json.load(fp)
-
-#read in fasta
-	fa1, fa2 = dict(), dict()
-for s in SeqIO.parse(path_fa1, 'fasta'):
-	fa1[s.id] = s.seq._data
-for s in SeqIO.parse(path_fa2, 'fasta'):
-	fa2[s.id] = s.seq._data
-
-#find non-matching genes
-for k in j1['alleles'].keys():
-	if j1['alleles'][k] != j2['alleles'][k] and j1['alleles'][k] and j2['alleles'][k]:
-		pos = ", ".join([str(i) for i, (b1, b2) in enumerate(zip(fa1[k], fa2[k])) if b1!=b2])
-		if sample:
-			o.append("\t".join([id1, id2, sample, k, str(len(fa1[k])), pos]))
-		else:
-			o.append("\t".join([id1, id2, k, str(len(fa1[k])), pos]))
-return o
+	#read in json
+	with open(path_json1, 'r') as fp:
+		j1 = json.load(fp)
+	with open(path_json2, 'r') as fp:
+		j2 = json.load(fp)
+	
+	#read in fasta
+		fa1, fa2 = dict(), dict()
+	for s in SeqIO.parse(path_fa1, 'fasta'):
+		fa1[s.id] = s.seq._data
+	for s in SeqIO.parse(path_fa2, 'fasta'):
+		fa2[s.id] = s.seq._data
+	
+	#find non-matching genes
+	for k in j1['alleles'].keys():
+		if j1['alleles'][k] != j2['alleles'][k] and j1['alleles'][k] and j2['alleles'][k]:
+			pos = ", ".join([str(i) for i, (b1, b2) in enumerate(zip(fa1[k], fa2[k])) if b1!=b2])
+			if sample:
+				o.append("\t".join([id1, id2, sample, k, str(len(fa1[k])), pos]))
+			else:
+				o.append("\t".join([id1, id2, k, str(len(fa1[k])), pos]))
+	return o
 
 
 def getDiff(infile, search_dir, outfile):
